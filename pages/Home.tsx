@@ -73,42 +73,42 @@ export const Home: React.FC = () => {
 
   const testimonials = [
     {
-      initials: "M.R.",
+      name: "Marcus Richardson",
       location: "London, UK",
       recovered: "£45,200 Recovered",
       type: "Bank Transfer Fraud",
       quote: "My bank initially refused to refund me, claiming I authorized the payment. Sentinel helped me structure a formal complaint citing the CRM Code. The bank reversed their decision in 4 weeks."
     },
     {
-      initials: "J.D.",
+      name: "Jennifer Davis",
       location: "California, USA",
       recovered: "$128,000 Recovered",
       type: "Investment Scam",
       quote: "I sent a wire transfer to what I thought was a brokerage. Sentinel's guide showed me how to request a 'kill chain' recall immediately. The receiving bank froze the account before the scammers could cash out."
     },
     {
-      initials: "S.K.",
+      name: "Samuel Kowalski",
       location: "Toronto, Canada",
       recovered: "$32,000 Recovered",
       type: "Romance Scam",
       quote: "I felt so stupid and didn't know where to start. Sentinel's report format made the police actually listen to me. Because of the quick reporting, they identified the mule account and seized the remaining funds."
     },
     {
-      initials: "L.T.",
+      name: "Lea Thiemann",
       location: "Berlin, Germany",
       recovered: "€21,500 Recovered",
       type: "Crypto Exchange Fraud",
       quote: "Sentinel directed me to the specific regulatory ombudsman for my region. The exchange finally unlocked my assets after receiving the formal case file Sentinel helped me prepare."
     },
     {
-      initials: "B.G.",
+      name: "Benjamin Greene",
       location: "Sydney, Australia",
       recovered: "AUD $15,000 Recovered",
       type: "Tech Support Scam",
       quote: "I was panicked. The guidance helped me realize the transaction was still 'pending'. I contacted the bank's fraud department with the correct terminology and they stopped it just in time."
     },
     {
-      initials: "A.P.",
+      name: "Amara Patel",
       location: "New York, USA",
       recovered: "$8,400 Recovered",
       type: "Phishing / Credit Card",
@@ -137,7 +137,7 @@ export const Home: React.FC = () => {
 
   const scrollSlider = (direction: 'left' | 'right') => {
     if (sliderRef.current) {
-      const scrollAmount = 400; // Approx card width
+      const scrollAmount = 400;
       sliderRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
@@ -147,6 +147,10 @@ export const Home: React.FC = () => {
 
   const toggleFaq = (idx: number) => {
     setOpenFaq(openFaq === idx ? null : idx);
+  };
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('');
   };
 
   return (
@@ -181,7 +185,7 @@ export const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Illustration - Visible on Mobile now */}
+            {/* Right Illustration */}
             <div className="relative h-[400px] lg:h-[500px] w-full flex items-center justify-center mt-12 lg:mt-0">
                <div className="hero-visual-card relative w-full max-w-sm lg:max-w-md h-[400px] bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 flex flex-col z-10">
                   {/* Fake UI: Case Header */}
@@ -262,7 +266,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Testimonials Slider Section (Moved) */}
+      {/* Testimonials Slider Section */}
       <section className="py-24 bg-slate-900 testimonials-section overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-12">
@@ -294,11 +298,12 @@ export const Home: React.FC = () => {
                   
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-slate-900 font-bold text-lg shadow-lg">
-                      {testimonial.initials}
+                      {getInitials(testimonial.name)}
                     </div>
                     <div>
-                      <div className="font-semibold text-white">{testimonial.location}</div>
-                      <div className="text-xs text-slate-400">{testimonial.type}</div>
+                      <div className="font-semibold text-white">{testimonial.name}</div>
+                      <div className="text-sm text-slate-400">{testimonial.location}</div>
+                      <div className="text-xs text-slate-500">{testimonial.type}</div>
                     </div>
                   </div>
 
@@ -352,7 +357,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* NEW: Statistics / Impact Section */}
+      {/* Statistics / Impact Section */}
       <section className="py-20 bg-slate-900 text-white stats-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -437,7 +442,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* NEW: Global Jurisdictions Section */}
+      {/* Global Jurisdictions Section */}
       <section className="py-20 bg-white">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row items-center gap-12">
