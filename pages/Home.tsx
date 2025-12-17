@@ -79,7 +79,7 @@ export const Home: React.FC = () => {
       initials: "J.D.",
       location: "California, USA",
       recovered: "$128,000 Recovered",
-      type: "Investment Misfeasance",
+      type: "Investment Scam",
       quote: "Our wire transfer was intercepted by an illicit entity. Sentinel facilitated the immediate execution of a 'kill chain' protocol. The intermediary institution froze the funds prior to liquidation by the perpetrators."
     },
     {
@@ -145,7 +145,7 @@ export const Home: React.FC = () => {
                 Confidential Incident Documentation
               </div>
               <h1 className="hero-text text-5xl md:text-6xl font-bold text-slate-900 tracking-tight mb-6 leading-[1.1]">
-                Victim of Financial Misfeasance?
+                Victim of Financial Scam/Fraud?
               </h1>
               <p className="hero-text text-xl text-slate-600 mb-10 leading-relaxed">
                 Sentinel provides forensic documentation and regulatory advocacy for victims of financial fraud. We facilitate formal reporting to the appropriate global jurisdictions and support legitimate avenues for asset recovery.
