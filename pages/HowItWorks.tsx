@@ -21,23 +21,23 @@ export const HowItWorks: React.FC = () => {
   const steps = [
     {
       icon: <ClipboardList className="w-8 h-8 text-primary-600" />,
-      title: "1. Document the Incident",
-      desc: "Use our secure form to detail exactly what happened. We structure this data into a format that banks and authorities require."
+      title: "I. Evidentiary Documentation",
+      desc: "Comprehensive memorialization of the incident via our secure digital portal. We ensure all data adheres to the technical standards required by financial institutions."
     },
     {
       icon: <Search className="w-8 h-8 text-primary-600" />,
-      title: "2. Case Assessment",
-      desc: "Our automated system + human review team categorizes the scam type (Crypto, Bank, Romance) to determine viable recovery paths."
+      title: "II. Forensic Case Assessment",
+      desc: "Our interdisciplinary team categorizes the matter and identifies the most viable statutory recovery channels based on current global regulations."
     },
     {
       icon: <BookOpen className="w-8 h-8 text-primary-600" />,
-      title: "3. Receive Your Guidance Pack",
-      desc: "We generate a personalized guide containing the exact regulatory bodies to contact and template letters for your bank."
+      title: "III. Case File Compilation",
+      desc: "Generation of a professional evidentiary dossier, including technical fund-tracing maps and formal draft intercessions for your banking provider."
     },
     {
       icon: <Send className="w-8 h-8 text-primary-600" />,
-      title: "4. Submit to Authorities",
-      desc: "You submit the prepared evidence to Law Enforcement (IC3/ActionFraud) and your financial institution."
+      title: "IV. Regulatory Submission",
+      desc: "Execution of the formal reporting phase, submitting the finalized dossier to the pertinent legal authorities and financial regulators."
     }
   ];
 
@@ -46,22 +46,17 @@ export const HowItWorks: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <h1 className="text-4xl font-bold text-slate-900 mb-6">Our Process is Simple & Transparent</h1>
-          <p className="text-slate-600 text-lg">
-            We strip away the confusion. We don't perform magic; we provide professional case management and direction.
+          <h1 className="text-4xl font-bold text-slate-900 mb-6">Procedural Framework & Standards</h1>
+          <p className="text-slate-600 text-lg leading-relaxed">
+            Sentinel operates within a structured framework designed to bridge the technical gap between victims of financial fraud and the governing regulatory bodies.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 relative">
-          {/* Connector Line (Desktop) */}
           <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-slate-200 transform -translate-x-1/2"></div>
-
           {steps.map((step, index) => (
             <div key={index} className={`step-card relative flex items-center ${index % 2 === 0 ? 'md:justify-end md:pr-12' : 'md:justify-start md:pl-12 md:order-2'}`}>
-              
-              {/* Dot on line */}
               <div className="hidden md:block absolute top-1/2 left-1/2 w-4 h-4 bg-white border-4 border-primary-500 rounded-full transform -translate-x-1/2 -translate-y-1/2 z-10"></div>
-              
               <div className="bg-slate-50 p-8 rounded-xl border border-slate-100 shadow-sm w-full max-w-lg hover:shadow-md transition-shadow">
                 <div className="bg-white w-16 h-16 rounded-lg flex items-center justify-center mb-6 shadow-sm border border-slate-100">
                   {step.icon}
@@ -74,7 +69,6 @@ export const HowItWorks: React.FC = () => {
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
