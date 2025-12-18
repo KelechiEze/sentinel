@@ -1,2 +1,4 @@
 caseId,timestamp,scamType,amountLost,currency,dateOccurred,description,scammerDetails,contactEmail,paymentMethod,cryptoType,status,evidenceFilesCount
 CASE-1766063284862-841,2025-12-18T13:08:04.862Z,Crypto / Investment,210000,EUR,2024-06-18,jasbhddsjyhvdsvdvsjhdvhj,28917382368273766,kect@gmail.com,WIRE,,submitted,
+CASE-1766067070285-155,2025-12-18T14:11:10.285Z,Crypto / Investment,12000,USD,2025-12-03,jshgvedvwjbegwgvey,38927362493,kect@gmail.com,WIRE,,submitted,
+CASE-1766067213874-159,2025-12-18T14:13:33.874Z,Romance Scam,120000,USD,2025-12-01,he was very convincing,+21826235372,roance@gmail.com,VENMO,,submitted,

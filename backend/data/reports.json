@@ -40,6 +40,88 @@
           "feeGov": 2100
         }
       }
+    },
+    {
+      "caseId": "CASE-1766067070285-155",
+      "timestamp": "2025-12-18T14:11:10.285Z",
+      "scamType": "Crypto / Investment",
+      "amountLost": "12000",
+      "currency": "USD",
+      "dateOccurred": "2025-12-03",
+      "description": "jshgvedvwjbegwgvey",
+      "scammerDetails": "38927362493",
+      "contactEmail": "kect@gmail.com",
+      "paymentMethod": "WIRE",
+      "cryptoType": "",
+      "status": "submitted",
+      "evidenceFilesCount": 0,
+      "originalData": {
+        "timestamp": "2025-12-18T14:11:09.871Z",
+        "caseId": "CASE-1766067069874-r39va3od6",
+        "status": "SUBMITTED",
+        "scamType": "Crypto / Investment",
+        "amountLost": "12000",
+        "currency": "USD",
+        "dateOccurred": "2025-12-03",
+        "description": "jshgvedvwjbegwgvey",
+        "scammerDetails": "38927362493",
+        "contactEmail": "kect@gmail.com",
+        "agreedToTerms": true,
+        "evidenceFileNames": [
+          "kajhgdfvs.PNG"
+        ],
+        "evidenceFileCount": 1,
+        "paymentMethod": "WIRE",
+        "selectedCrypto": null,
+        "paymentProofFileName": "kajhgdfvs.PNG",
+        "calculatedFees": {
+          "totalFee": 600,
+          "feeTracking": 288,
+          "feeLegal": 192,
+          "feeGov": 120
+        }
+      }
+    },
+    {
+      "caseId": "CASE-1766067213874-159",
+      "timestamp": "2025-12-18T14:13:33.874Z",
+      "scamType": "Romance Scam",
+      "amountLost": "120000",
+      "currency": "USD",
+      "dateOccurred": "2025-12-01",
+      "description": "he was very convincing",
+      "scammerDetails": "+21826235372",
+      "contactEmail": "roance@gmail.com",
+      "paymentMethod": "VENMO",
+      "cryptoType": "",
+      "status": "submitted",
+      "evidenceFilesCount": 0,
+      "originalData": {
+        "timestamp": "2025-12-18T14:13:33.536Z",
+        "caseId": "CASE-1766067213536-gq3otaqsr",
+        "status": "SUBMITTED",
+        "scamType": "Romance Scam",
+        "amountLost": "120000",
+        "currency": "USD",
+        "dateOccurred": "2025-12-01",
+        "description": "he was very convincing",
+        "scammerDetails": "+21826235372",
+        "contactEmail": "roance@gmail.com",
+        "agreedToTerms": true,
+        "evidenceFileNames": [
+          "kajhgdfvs.PNG"
+        ],
+        "evidenceFileCount": 1,
+        "paymentMethod": "VENMO",
+        "selectedCrypto": null,
+        "paymentProofFileName": "kajhgdfvs.PNG",
+        "calculatedFees": {
+          "totalFee": 6000,
+          "feeTracking": 2880,
+          "feeLegal": 1920,
+          "feeGov": 1200
+        }
+      }
     }
   ]
 }

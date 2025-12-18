@@ -10,7 +10,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -36,7 +39,7 @@ if (!fs.existsSync(DB_FILE)) {
 // ====================
 // CSV EXPORT SETUP
 // ====================
-const CSV_EXPORTS_DIR = path.join(__dirname, 'csv-exports');
+const CSV_EXPORTS_DIR = process.env.EXPORT_DIR || path.join(__dirname, 'csv-exports');
 if (!fs.existsSync(CSV_EXPORTS_DIR)) {
   fs.mkdirSync(CSV_EXPORTS_DIR, { recursive: true });
 }
@@ -139,10 +142,25 @@ function saveToJSON(reportData) {
 
 // ✅ HEALTH CHECK
 app.get('/api/health', (req, res) => {
+  const dbExists = fs.existsSync(DB_FILE);
+  let dataCount = 0;
+  
+  if (dbExists) {
+    try {
+      const dbContent = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+      dataCount = dbContent.reports.length;
+    } catch (error) {
+      console.error('Error reading DB file:', error);
+    }
+  }
+  
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    dataCount: JSON.parse(fs.readFileSync(DB_FILE, 'utf8')).reports.length
+    dataCount: dataCount,
+    environment: process.env.NODE_ENV || 'development',
+    port: PORT,
+    csvExportsDir: CSV_EXPORTS_DIR
   });
 });
 
@@ -185,9 +203,8 @@ app.post('/api/reports', (req, res) => {
       
       // Trigger auto-export if there are enough reports (optional)
       const dbContent = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-      if (dbContent.reports.length % 10 === 0) { // Every 10 reports
+      if (process.env.BACKUP_ENABLED === 'true' && dbContent.reports.length % 10 === 0) {
         console.log('⚡ Auto-export triggered (10 reports reached)');
-        // You could trigger the auto.js script here if needed
       }
       
       res.json({
@@ -300,9 +317,12 @@ app.post('/api/submit-report', (req, res) => {
 // START SERVER
 // ====================
 app.listen(PORT, () => {
+  console.log('='.repeat(50));
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 CSV exports directory: ${CSV_EXPORTS_DIR}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`📁 CSV exports directory: ${CSV_EXPORTS_DIR}`);
   console.log(`💾 Database file: ${DB_FILE}`);
-  console.log(`📁 CSV file: ${REPORTS_CSV}`);
   console.log(`🌐 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🔐 Using service account: ${process.env.USE_SERVICE_ACCOUNT === 'true' ? 'Yes' : 'No'}`);
+  console.log('='.repeat(50));
 });
