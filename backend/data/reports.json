@@ -151,6 +151,93 @@
         "evidenceFileCount": 1,
         "paymentProofFileName": "ahgdfva.PNG"
       }
+    },
+    {
+      "caseId": "CASE-1766079657159-737",
+      "timestamp": "2025-12-18T17:40:57.159Z",
+      "scamType": "Online Shopping / E-commerce",
+      "amountLost": "12000",
+      "currency": "USD",
+      "dateOccurred": "2025-12-04",
+      "description": "we are testing to see that it is real",
+      "scammerDetails": "092726732",
+      "contactEmail": "lopi@gmail.com",
+      "paymentMethod": "WIRE",
+      "cryptoType": "N/A",
+      "status": "submitted",
+      "evidenceFilesCount": 1,
+      "originalData": {
+        "contactEmail": "lopi@gmail.com",
+        "scamType": "Online Shopping / E-commerce",
+        "amountLost": "12000",
+        "currency": "USD",
+        "dateOccurred": "2025-12-04",
+        "description": "we are testing to see that it is real",
+        "scammerDetails": "092726732",
+        "agreedToTerms": true,
+        "paymentMethod": "WIRE",
+        "selectedCrypto": null,
+        "evidenceFileCount": 1,
+        "paymentProofFileName": "ahgdfva.PNG"
+      }
+    },
+    {
+      "caseId": "CASE-1766080560543-233",
+      "timestamp": "2025-12-18T17:56:00.543Z",
+      "scamType": "Tech Support Scam",
+      "amountLost": "63828",
+      "currency": "USD",
+      "dateOccurred": "2024-02-06",
+      "description": "he said he will support my tech stack but didn't",
+      "scammerDetails": "+939286738",
+      "contactEmail": "roancenicut@gmail.com",
+      "paymentMethod": "PAYPAL",
+      "cryptoType": "N/A",
+      "status": "submitted",
+      "evidenceFilesCount": 1,
+      "originalData": {
+        "contactEmail": "roancenicut@gmail.com",
+        "scamType": "Tech Support Scam",
+        "amountLost": "63828",
+        "currency": "USD",
+        "dateOccurred": "2024-02-06",
+        "description": "he said he will support my tech stack but didn't",
+        "scammerDetails": "+939286738",
+        "agreedToTerms": true,
+        "paymentMethod": "PAYPAL",
+        "selectedCrypto": null,
+        "evidenceFileCount": 1,
+        "paymentProofFileName": "ahgdfva.PNG"
+      }
+    },
+    {
+      "caseId": "CASE-1766081400978-65",
+      "timestamp": "2025-12-18T18:10:00.979Z",
+      "scamType": "Crypto / Investment",
+      "amountLost": "43000",
+      "currency": "USD",
+      "dateOccurred": "2025-12-04",
+      "description": "alot of lies we're told",
+      "scammerDetails": "+213343930287",
+      "contactEmail": "roancenicut@gmail.com",
+      "paymentMethod": "PAYPAL",
+      "cryptoType": "N/A",
+      "status": "submitted",
+      "evidenceFilesCount": 1,
+      "originalData": {
+        "contactEmail": "roancenicut@gmail.com",
+        "scamType": "Crypto / Investment",
+        "amountLost": "43000",
+        "currency": "USD",
+        "dateOccurred": "2025-12-04",
+        "description": "alot of lies we're told",
+        "scammerDetails": "+213343930287",
+        "agreedToTerms": true,
+        "paymentMethod": "PAYPAL",
+        "selectedCrypto": null,
+        "evidenceFileCount": 1,
+        "paymentProofFileName": "kajhsaa.PNG"
+      }
     }
   ]
 }

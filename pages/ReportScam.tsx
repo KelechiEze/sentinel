@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScamType, ReportFormData } from '../types';
 import { submitFormData } from '../services/submissionService';
-import { AlertTriangle, Lock, UploadCloud, CheckCircle, Shield, Info, FileText, Globe, Search, Banknote, CreditCard, Bitcoin, Smartphone, Landmark, Copy, Check, ChevronDown, Loader2, FileCheck, Mail, Building, Smartphone as PhoneIcon, Wallet, QrCode, DollarSign, PoundSterling, Euro, CreditCard as CardIcon } from 'lucide-react';
+import { AlertTriangle, Lock, UploadCloud, CheckCircle, Shield, Info, FileText, Globe, Search, Banknote, CreditCard, Bitcoin, Smartphone, Landmark, Copy, Check, ChevronDown, Loader2, FileCheck, Mail, Building, Smartphone as PhoneIcon, Wallet, QrCode, DollarSign, PoundSterling, Euro, CreditCard as CardIcon, X, Send } from 'lucide-react';
 
 // Payment platform configuration with real-world symbols and details
 const PAYMENT_PLATFORMS = {
@@ -138,6 +138,8 @@ export const ReportScam: React.FC = () => {
     caseId: string;
     timestamp: string;
   } | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
 
   const evidenceInputRef = useRef<HTMLInputElement>(null);
   const paymentProofInputRef = useRef<HTMLInputElement>(null);
@@ -241,6 +243,10 @@ export const ReportScam: React.FC = () => {
       localStorage.setItem('lastSubmissionTime', new Date().toISOString());
       
       setIsSuccess(true);
+      // Show the email modal after a short delay
+      setTimeout(() => {
+        setShowEmailModal(true);
+      }, 1000);
     } else {
       setSubmissionError(result.error || 'Failed to submit form. Please try again.');
       setIsSubmitting(false);
@@ -265,6 +271,18 @@ export const ReportScam: React.FC = () => {
     setPaymentProofFile(null);
     setSelectedCrypto("BTC");
     setSubmissionError(null);
+    setShowEmailModal(false);
+    setCopiedEmail(false);
+  };
+
+  const handleCopyEmail = () => {
+    const email = 'sentinelhonestscamreport@gmail.com';
+    navigator.clipboard.writeText(email).then(() => {
+      setCopiedEmail(true);
+      setTimeout(() => {
+        setCopiedEmail(false);
+      }, 2000);
+    });
   };
 
   if (isSuccess) {
@@ -376,6 +394,86 @@ export const ReportScam: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Email Modal */}
+        {showEmailModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-slide-up">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900">Payment Verification Required</h3>
+                      <p className="text-sm text-slate-500 mt-1">Final step to complete your case submission</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowEmailModal(false)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors p-1 hover:bg-slate-100 rounded-lg"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">Important: Send your payment screenshot</p>
+                      <p>To verify your payment and expedite your case processing, please send a screenshot or photo of your payment confirmation to our verification team.</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-slate-50 rounded-lg p-4 mb-6 border border-slate-200">
+                  <div className="text-center mb-3">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-100 rounded-full mb-3">
+                      <Mail className="w-6 h-6 text-primary-600" />
+                    </div>
+                    <h4 className="font-bold text-slate-900">Send proof to:</h4>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-mono font-bold text-primary-600 bg-white p-3 rounded-lg border border-slate-200 mb-3">
+                      sentinelhonestscamreport@gmail.com
+                    </div>
+                    <div className="text-sm text-slate-600 mb-3">
+                      Copy the email address to send your payment proof
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-3">
+                  <button 
+                    onClick={handleCopyEmail}
+                    className="bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {copiedEmail ? (
+                      <>
+                        <Check className="w-5 h-5 text-green-400" />
+                        Email Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-5 h-5" />
+                        Copy Email Address
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                <div className="mt-6 pt-4 border-t border-slate-200">
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <Shield className="w-4 h-4 text-slate-400" />
+                    <span>Your payment proof will be securely encrypted and used solely for verification purposes.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
