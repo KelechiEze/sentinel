@@ -2,17 +2,24 @@
   "name": "sentinel-backend",
   "version": "1.0.0",
   "description": "Backend API for scam reports",
-  "main": "index.js",
+  "main": "api/index.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "vercel-build": "npm install"
+    "start": "node api/index.js",
+    "dev": "nodemon api/index.js",
+    "vercel-build": "npm install",
+    "auto": "node scripts/auto.js",
+    "auto-continuous": "CONTINUOUS=true node scripts/auto.js",
+    "upload": "node scripts/upload-to-sheets.js",
+    "export": "node scripts/auto.js --continuous",
+    "sync": "node scripts/auto.js"
   },
   "dependencies": {
     "express": "^4.21.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "googleapis": "^144.0.0",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
