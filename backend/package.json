@@ -1,27 +1,18 @@
 {
-  "name": "scam-report-backend",
+  "name": "sentinel-backend",
   "version": "1.0.0",
-  "description": "Backend for storing scam reports in CSV",
+  "description": "Backend API for scam reports",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "clean": "rm -rf exports logs",
-    "export": "node scripts/auto.js",
-    "upload": "node scripts/upload-to-sheets.js",
-    "auto": "node scripts/auto.js && node scripts/upload-to-sheets.js",
-    "sheets": "npm run auto"
+    "vercel-build": "npm install"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "csv-parser": "^3.2.0",
-    "csv-stringify": "^6.6.0",
-    "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "fs": "^0.0.1-security",
-    "googleapis": "^169.0.0",
-    "path": "^0.12.7"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
