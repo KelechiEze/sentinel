@@ -1,0 +1,45 @@
+{
+  "reports": [
+    {
+      "caseId": "CASE-1766063284862-841",
+      "timestamp": "2025-12-18T13:08:04.862Z",
+      "scamType": "Crypto / Investment",
+      "amountLost": "210000",
+      "currency": "EUR",
+      "dateOccurred": "2024-06-18",
+      "description": "jasbhddsjyhvdsvdvsjhdvhj",
+      "scammerDetails": "28917382368273766",
+      "contactEmail": "kect@gmail.com",
+      "paymentMethod": "WIRE",
+      "cryptoType": "",
+      "status": "submitted",
+      "evidenceFilesCount": 0,
+      "originalData": {
+        "timestamp": "2025-12-18T13:08:04.393Z",
+        "caseId": "CASE-1766063284396-2nqkev529",
+        "status": "SUBMITTED",
+        "scamType": "Crypto / Investment",
+        "amountLost": "210000",
+        "currency": "EUR",
+        "dateOccurred": "2024-06-18",
+        "description": "jasbhddsjyhvdsvdvsjhdvhj",
+        "scammerDetails": "28917382368273766",
+        "contactEmail": "kect@gmail.com",
+        "agreedToTerms": true,
+        "evidenceFileNames": [
+          "ahgdfva.PNG"
+        ],
+        "evidenceFileCount": 1,
+        "paymentMethod": "WIRE",
+        "selectedCrypto": null,
+        "paymentProofFileName": "ahgdfva.PNG",
+        "calculatedFees": {
+          "totalFee": 10500,
+          "feeTracking": 5040,
+          "feeLegal": 3360,
+          "feeGov": 2100
+        }
+      }
+    }
+  ]
+}
