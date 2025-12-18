@@ -374,15 +374,6 @@ export const ReportScam: React.FC = () => {
             >
               Submit Another Report
             </button>
-            <button 
-              onClick={() => {
-                // This would trigger a CSV download from the backend
-                window.open('/api/export/csv', '_blank');
-              }}
-              className="bg-slate-100 border border-slate-300 text-slate-700 px-8 py-3 rounded-lg font-semibold hover:bg-slate-200 transition-colors flex-1 sm:flex-none"
-            >
-              Export Data
-            </button>
           </div>
         </div>
       </div>

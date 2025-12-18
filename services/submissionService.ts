@@ -1,6 +1,9 @@
 // services/submissionService.ts
 import { ReportFormData, SubmissionData, SubmissionResponse } from '../types';
 
+// 🎯 IMPORTANT: Update this URL to your Railway backend
+const API_BASE_URL = 'https://sentinel-production-3479.up.railway.app';
+
 export const submitFormData = async (
   formData: ReportFormData,
   paymentMethod: string | null,
@@ -40,8 +43,8 @@ export const submitFormData = async (
       }
     };
 
-    // Use proxy URL - Vite will proxy to backend
-    const response = await fetch('/api/submit-report', {
+    // 🎯 UPDATED: Use your Railway backend URL
+    const response = await fetch(`${API_BASE_URL}/api/submit-report`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -77,7 +80,8 @@ export const submitFormData = async (
 // Function to check submission status
 export const checkSubmissionStatus = async (caseId: string): Promise<SubmissionResponse> => {
   try {
-    const response = await fetch(`/api/submissions/${caseId}`);
+    // 🎯 UPDATED: Use your Railway backend URL
+    const response = await fetch(`${API_BASE_URL}/api/reports/${caseId}`);
     if (!response.ok) {
       throw new Error(`Status check failed: ${response.status}`);
     }
@@ -91,10 +95,23 @@ export const checkSubmissionStatus = async (caseId: string): Promise<SubmissionR
   }
 };
 
-// Function to get all submissions (admin view)
-export const getAllSubmissions = async (): Promise<{success: boolean; data?: any[]; error?: string}> => {
+// Function to get all submissions (admin view) - PROTECTED
+export const getAllSubmissions = async (adminToken?: string): Promise<{success: boolean; data?: any[]; error?: string}> => {
   try {
-    const response = await fetch('/api/submissions');
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Add admin token if provided
+    if (adminToken) {
+      headers['Authorization'] = `Bearer ${adminToken}`;
+    }
+    
+    // 🎯 UPDATED: Use your Railway backend URL
+    const response = await fetch(`${API_BASE_URL}/api/reports`, {
+      headers
+    });
+    
     if (!response.ok) {
       throw new Error(`Failed to fetch submissions: ${response.status}`);
     }
@@ -108,16 +125,27 @@ export const getAllSubmissions = async (): Promise<{success: boolean; data?: any
   }
 };
 
-// Function to download CSV
-export const downloadCSV = async (): Promise<Blob | null> => {
-  try {
-    const response = await fetch('/api/export/csv');
-    if (!response.ok) {
-      throw new Error(`Download failed: ${response.status}`);
-    }
-    return await response.blob();
-  } catch (error) {
-    console.error('Download error:', error);
-    return null;
-  }
-};
+// ❌ DISABLED: Function to download CSV (per your request)
+// export const downloadCSV = async (adminToken?: string): Promise<Blob | null> => {
+//   try {
+//     const headers: HeadersInit = {};
+    
+//     // Add admin token if provided
+//     if (adminToken) {
+//       headers['Authorization'] = `Bearer ${adminToken}`;
+//     }
+    
+//     // 🎯 UPDATED: Use your Railway backend URL
+//     const response = await fetch(`${API_BASE_URL}/api/export/csv`, {
+//       headers
+//     });
+    
+//     if (!response.ok) {
+//       throw new Error(`Download failed: ${response.status}`);
+//     }
+//     return await response.blob();
+//   } catch (error) {
+//     console.error('Download error:', error);
+//     return null;
+//   }
+// };
