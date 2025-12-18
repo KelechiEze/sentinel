@@ -1,0 +1,6 @@
+[dev]
+  framework = "vite"
+  
+[[dev.proxy]]
+  from = "/api"
+  to = "https://sentinel-production-3479.up.railway.app"
