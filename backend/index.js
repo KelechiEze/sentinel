@@ -2,30 +2,33 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
 
 const app = express();
-const isVercel = process.env.VERCEL === '1';
+const PORT = 5000; // Use a different port than your frontend
 
-// CORS Configuration
+// FIX CORS - Allow localhost:3000
 app.use(cors({
-  origin: ['https://sentinelrecovery.netlify.app', 'https://sentinel-wine.vercel.app'],
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://sentinelrecovery.netlify.app'],
   credentials: true,
 }));
 app.use(express.json());
 
 // ====================
-// STORAGE SETUP
+// LOCAL STORAGE SETUP
 // ====================
-const STORAGE_DIR = isVercel ? '/tmp/sentinel-data' : path.join(process.cwd(), 'data');
-const DB_FILE = path.join(STORAGE_DIR, 'reports.json');
+const LOCAL_DATA_DIR = path.join(__dirname, 'data');
+const LOCAL_CSV_DIR = path.join(__dirname, 'csv-exports');
 
-// Ensure directory exists
-if (!fs.existsSync(STORAGE_DIR)) {
-  fs.mkdirSync(STORAGE_DIR, { recursive: true });
-}
+// Create directories
+[LOCAL_DATA_DIR, LOCAL_CSV_DIR].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`📁 Created: ${dir}`);
+  }
+});
 
-// Initialize database
+// Database file
+const DB_FILE = path.join(LOCAL_DATA_DIR, 'reports.json');
 if (!fs.existsSync(DB_FILE)) {
   fs.writeFileSync(DB_FILE, JSON.stringify({ reports: [] }, null, 2));
 }
@@ -49,6 +52,7 @@ function saveToJSON(reportData) {
     const dbContent = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
     dbContent.reports.push(reportData);
     fs.writeFileSync(DB_FILE, JSON.stringify(dbContent, null, 2), 'utf8');
+    console.log(`✅ JSON saved: ${dbContent.reports.length} reports total`);
     return true;
   } catch (error) {
     console.error('❌ Error saving JSON:', error);
@@ -56,10 +60,11 @@ function saveToJSON(reportData) {
   }
 }
 
-// This function creates CSV immediately when form is submitted
 function createCSV(reportData) {
   try {
-    // Get all reports from database
+    console.log('💾 Creating CSV files...');
+    
+    // Read all reports
     const dbContent = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
     const allReports = dbContent.reports;
     
@@ -78,48 +83,26 @@ function createCSV(reportData) {
     
     const csvContent = headerRow + dataRows;
     
-    // Save CSV file - this is where the magic happens
-    const csvExportsDir = path.join(process.cwd(), 'csv-exports');
-    
-    // Ensure CSV exports directory exists
-    if (!fs.existsSync(csvExportsDir)) {
-      fs.mkdirSync(csvExportsDir, { recursive: true });
-    }
-    
-    // Save individual CSV with timestamp
+    // 1. Save timestamped file
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const individualFile = path.join(csvExportsDir, `scam-reports-${timestamp}.csv`);
-    fs.writeFileSync(individualFile, csvContent, 'utf8');
+    const timestampFile = path.join(LOCAL_CSV_DIR, `scam-reports-${timestamp}.csv`);
+    fs.writeFileSync(timestampFile, csvContent, 'utf8');
     
-    // Save latest.csv
-    const latestFile = path.join(csvExportsDir, 'latest.csv');
+    // 2. Save latest.csv
+    const latestFile = path.join(LOCAL_CSV_DIR, 'latest.csv');
     fs.writeFileSync(latestFile, csvContent, 'utf8');
     
-    // Append to master CSV file
-    const masterFile = path.join(csvExportsDir, 'scam-reports.csv');
-    if (!fs.existsSync(masterFile)) {
-      fs.writeFileSync(masterFile, headerRow, 'utf8');
-    }
+    // 3. Save master file
+    const masterFile = path.join(LOCAL_CSV_DIR, 'scam-reports.csv');
+    fs.writeFileSync(masterFile, csvContent, 'utf8');
     
-    // Append just the new row
-    const newRow = CSV_HEADERS.map(header => {
-      let value = reportData[header] || '';
-      if (typeof value !== 'string') value = String(value);
-      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-        value = `"${value.replace(/"/g, '""')}"`;
-      }
-      return value;
-    }).join(',') + '\n';
-    
-    fs.appendFileSync(masterFile, newRow, 'utf8');
-    
-    console.log(`✅ CSV saved to: ${csvExportsDir}/`);
-    console.log(`📊 Total reports in CSV: ${allReports.length}`);
+    console.log(`📄 CSV files created in: ${LOCAL_CSV_DIR}`);
+    console.log(`📊 Total records: ${allReports.length}`);
     
     return {
       success: true,
-      csvDir: csvExportsDir,
-      files: fs.readdirSync(csvExportsDir).filter(f => f.endsWith('.csv')),
+      csvDir: LOCAL_CSV_DIR,
+      files: fs.readdirSync(LOCAL_CSV_DIR).filter(f => f.endsWith('.csv')),
       count: allReports.length
     };
     
@@ -129,25 +112,11 @@ function createCSV(reportData) {
   }
 }
 
-// Function to trigger auto.js from Vercel
-function triggerAutoJS() {
-  return new Promise((resolve) => {
-    // This runs on Vercel, so we can't directly run local scripts
-    // Instead, we'll make an API call to a local endpoint if available
-    console.log('📡 Attempting to trigger local CSV export...');
-    
-    // For now, just log - in production you'd want to set up a webhook
-    console.log('ℹ️  CSV files are ready in csv-exports folder');
-    
-    resolve({ success: true, message: 'CSV export triggered' });
-  });
-}
-
 // ====================
 // API ROUTES
 // ====================
-app.post('/api/submit-report', async (req, res) => {
-  console.log('📥 Submit request received');
+app.post('/api/submit-report', (req, res) => {
+  console.log('📥 Form submitted!');
   
   try {
     const reportData = req.body;
@@ -179,34 +148,32 @@ app.post('/api/submit-report', async (req, res) => {
       originalData: reportData
     };
     
-    // Save to JSON database
+    // Save to JSON
     const jsonSaved = saveToJSON(completeReport);
     
     if (!jsonSaved) {
       return res.status(500).json({
         success: false,
-        error: 'Failed to save report data'
+        error: 'Failed to save report'
       });
     }
     
-    // Create CSV files immediately
+    // 🎯 CREATE CSV FILES - THIS IS WHAT YOU WANT!
     const csvResult = createCSV(completeReport);
-    
-    // Try to trigger auto.js for Google Sheets upload
-    await triggerAutoJS();
     
     res.json({
       success: true,
       caseId,
       timestamp,
       message: 'Report submitted successfully!',
-      dataSaved: true,
       csvCreated: csvResult.success,
+      csvLocation: LOCAL_CSV_DIR,
+      csvFiles: csvResult.files || [],
       csvCount: csvResult.count || 0
     });
     
   } catch (error) {
-    console.error('❌ Error processing submit-report:', error);
+    console.error('❌ Error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -214,34 +181,16 @@ app.post('/api/submit-report', async (req, res) => {
   }
 });
 
-// Get all reports
-app.get('/api/reports', (req, res) => {
-  try {
-    const dbContent = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-    res.json({
-      success: true,
-      reports: dbContent.reports,
-      count: dbContent.reports.length
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Health check
 app.get('/api/health', (req, res) => {
-  let dataCount = 0;
-  let csvFiles = [];
+  let reportCount = 0;
+  let csvCount = 0;
   
   try {
-    if (fs.existsSync(DB_FILE)) {
-      const dbContent = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-      dataCount = dbContent.reports.length;
-    }
+    const dbContent = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    reportCount = dbContent.reports.length;
     
-    const csvExportsDir = path.join(process.cwd(), 'csv-exports');
-    if (fs.existsSync(csvExportsDir)) {
-      csvFiles = fs.readdirSync(csvExportsDir).filter(f => f.endsWith('.csv'));
+    if (fs.existsSync(LOCAL_CSV_DIR)) {
+      csvCount = fs.readdirSync(LOCAL_CSV_DIR).filter(f => f.endsWith('.csv')).length;
     }
   } catch (error) {
     console.error('Health check error:', error.message);
@@ -249,32 +198,28 @@ app.get('/api/health', (req, res) => {
   
   res.json({
     status: 'OK',
-    timestamp: new Date().toISOString(),
-    reportsCount: dataCount,
-    csvFilesCount: csvFiles.length,
-    platform: isVercel ? 'Vercel' : 'Local'
+    reportsCount: reportCount,
+    csvFilesCount: csvCount,
+    csvLocation: LOCAL_CSV_DIR,
+    message: 'Submit a form to create CSV files in csv-exports folder'
   });
 });
 
-// Get CSV files
 app.get('/api/csv-files', (req, res) => {
   try {
-    const csvExportsDir = path.join(process.cwd(), 'csv-exports');
-    
-    if (!fs.existsSync(csvExportsDir)) {
+    if (!fs.existsSync(LOCAL_CSV_DIR)) {
       return res.json({ success: true, files: [], count: 0 });
     }
     
-    const files = fs.readdirSync(csvExportsDir)
-      .filter(file => file.endsWith('.csv'))
+    const files = fs.readdirSync(LOCAL_CSV_DIR)
+      .filter(f => f.endsWith('.csv'))
       .map(file => {
-        const filepath = path.join(csvExportsDir, file);
+        const filepath = path.join(LOCAL_CSV_DIR, file);
         const stats = fs.statSync(filepath);
         return {
           filename: file,
           size: stats.size,
-          created: stats.birthtime,
-          modified: stats.mtime
+          created: stats.birthtime
         };
       });
     
@@ -284,59 +229,30 @@ app.get('/api/csv-files', (req, res) => {
   }
 });
 
-// Download CSV file
-app.get('/api/download-csv/:filename', (req, res) => {
-  try {
-    const filepath = path.join(process.cwd(), 'csv-exports', req.params.filename);
-    
-    if (!fs.existsSync(filepath)) {
-      return res.status(404).json({ success: false, error: 'File not found' });
-    }
-    
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${req.params.filename}"`);
-    
-    const fileStream = fs.createReadStream(filepath);
-    fileStream.pipe(res);
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Trigger CSV export manually
-app.get('/api/trigger-export', (req, res) => {
-  try {
-    const dbContent = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-    
-    if (dbContent.reports.length === 0) {
-      return res.json({ success: true, message: 'No reports to export' });
-    }
-    
-    // Create CSV from all reports
-    const csvResult = createCSV(dbContent.reports[dbContent.reports.length - 1]);
-    
-    res.json({
-      success: true,
-      message: 'CSV export triggered',
-      csvResult
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
 app.get('/', (req, res) => {
   res.json({
-    service: 'Sentinel API',
+    service: 'Sentinel Local API',
     status: 'running',
+    csvLocation: LOCAL_CSV_DIR,
     endpoints: [
-      'POST /api/submit-report',
-      'GET  /api/reports',
-      'GET  /api/csv-files',
-      'GET  /api/health',
-      'GET  /api/trigger-export'
+      'POST /api/submit-report - Submit form & create CSV',
+      'GET  /api/health - Health check',
+      'GET  /api/csv-files - List CSV files'
     ]
   });
 });
 
-module.exports = app;
+// ====================
+// START SERVER
+// ====================
+app.listen(PORT, () => {
+  console.log('='.repeat(60));
+  console.log(`🚀 LOCAL SERVER STARTED ON PORT ${PORT}`);
+  console.log(`📁 Data will be saved to: ${LOCAL_DATA_DIR}`);
+  console.log(`📊 CSV files will be created in: ${LOCAL_CSV_DIR}`);
+  console.log(`🌐 URL: http://localhost:${PORT}`);
+  console.log('='.repeat(60));
+  console.log('✅ Ready to receive form submissions!');
+  console.log('✅ CSV files will appear in csv-exports/ folder automatically');
+  console.log('='.repeat(60));
+});

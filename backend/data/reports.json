@@ -122,6 +122,35 @@
           "feeGov": 1200
         }
       }
+    },
+    {
+      "caseId": "CASE-1766079339623-206",
+      "timestamp": "2025-12-18T17:35:39.623Z",
+      "scamType": "Bank Transfer Fraud",
+      "amountLost": "12000",
+      "currency": "GBP",
+      "dateOccurred": "2024-01-02",
+      "description": "let se if it works",
+      "scammerDetails": "093877288",
+      "contactEmail": "roancenicut@gmail.com",
+      "paymentMethod": "WIRE",
+      "cryptoType": "N/A",
+      "status": "submitted",
+      "evidenceFilesCount": 1,
+      "originalData": {
+        "contactEmail": "roancenicut@gmail.com",
+        "scamType": "Bank Transfer Fraud",
+        "amountLost": "12000",
+        "currency": "GBP",
+        "dateOccurred": "2024-01-02",
+        "description": "let se if it works",
+        "scammerDetails": "093877288",
+        "agreedToTerms": true,
+        "paymentMethod": "WIRE",
+        "selectedCrypto": null,
+        "evidenceFileCount": 1,
+        "paymentProofFileName": "ahgdfva.PNG"
+      }
     }
   ]
 }
