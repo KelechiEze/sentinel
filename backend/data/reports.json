@@ -238,6 +238,64 @@
         "evidenceFileCount": 1,
         "paymentProofFileName": "kajhsaa.PNG"
       }
+    },
+    {
+      "caseId": "CASE-1766081974038-658",
+      "timestamp": "2025-12-18T18:19:34.038Z",
+      "scamType": "Crypto / Investment",
+      "amountLost": "987654",
+      "currency": "USD",
+      "dateOccurred": "2025-12-05",
+      "description": "jhgfdsdfghjk",
+      "scammerDetails": "fjhdbwvuedbwsbh",
+      "contactEmail": "lopi@gmail.com",
+      "paymentMethod": "ZELLE",
+      "cryptoType": "N/A",
+      "status": "submitted",
+      "evidenceFilesCount": 1,
+      "originalData": {
+        "contactEmail": "lopi@gmail.com",
+        "scamType": "Crypto / Investment",
+        "amountLost": "987654",
+        "currency": "USD",
+        "dateOccurred": "2025-12-05",
+        "description": "jhgfdsdfghjk",
+        "scammerDetails": "fjhdbwvuedbwsbh",
+        "agreedToTerms": true,
+        "paymentMethod": "ZELLE",
+        "selectedCrypto": null,
+        "evidenceFileCount": 1,
+        "paymentProofFileName": "kajhsaa.PNG"
+      }
+    },
+    {
+      "caseId": "CASE-1766276256906-150",
+      "timestamp": "2025-12-21T00:17:36.907Z",
+      "scamType": "Online Shopping / E-commerce",
+      "amountLost": "387662",
+      "currency": "USD",
+      "dateOccurred": "2024-06-12",
+      "description": "man we had a balausytrd",
+      "scammerDetails": "3i872637",
+      "contactEmail": "lopi@gmail.com",
+      "paymentMethod": "PAYPAL",
+      "cryptoType": "N/A",
+      "status": "submitted",
+      "evidenceFilesCount": 1,
+      "originalData": {
+        "contactEmail": "lopi@gmail.com",
+        "scamType": "Online Shopping / E-commerce",
+        "amountLost": "387662",
+        "currency": "USD",
+        "dateOccurred": "2024-06-12",
+        "description": "man we had a balausytrd",
+        "scammerDetails": "3i872637",
+        "agreedToTerms": true,
+        "paymentMethod": "PAYPAL",
+        "selectedCrypto": null,
+        "evidenceFileCount": 1,
+        "paymentProofFileName": "kjhsa.PNG"
+      }
     }
   ]
 }

@@ -2,119 +2,45 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScamType, ReportFormData } from '../types';
-import { submitFormData } from '../services/submissionService';
-import { AlertTriangle, Lock, UploadCloud, CheckCircle, Shield, Info, FileText, Globe, Search, Banknote, CreditCard, Bitcoin, Smartphone, Landmark, Copy, Check, ChevronDown, Loader2, FileCheck, Mail, Building, Smartphone as PhoneIcon, Wallet, QrCode, DollarSign, PoundSterling, Euro, CreditCard as CardIcon, X, Send } from 'lucide-react';
+import { AlertTriangle, Lock, UploadCloud, CheckCircle, Shield, Info, FileText, Copy, Check, Loader2, FileCheck, Mail, X, Bitcoin, Image as ImageIcon } from 'lucide-react';
 
-// Payment platform configuration with real-world symbols and details
-const PAYMENT_PLATFORMS = {
-  WIRE: {
-    id: 'wire',
-    name: 'Bank Wire Transfer',
-    icon: Building,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50',
-    details: {
-      beneficiary: 'SENTINEL FORENSIC ADVOCACY LTD',
-      accountNumber: '4489 7712 3091 5560',
-      routingNumber: '021000021',
-      swiftCode: 'CHASUS33',
-      iban: 'US03CHAS03301234567890',
-      bankName: 'JPMORGAN CHASE BANK, N.A.',
-      bankAddress: '383 Madison Avenue, New York, NY 10017, USA',
-      reference: 'CASE 8829-X | SENTINEL RETAINER'
-    }
+// Crypto configuration with real-world symbols and details
+const CRYPTO_ASSETS = {
+  BTC: {
+    id: 'bitcoin',
+    name: 'Bitcoin',
+    symbol: 'BTC',
+    logo: '₿',
+    address: 'bc1qd2wec90rdvv7jgssl9uz859vrflqaprnvppetg',
+    network: 'Bitcoin Mainnet',
+    qrValue: 'bitcoin:bc1qd2wec90rdvv7jgssl9uz859vrflqaprnvppetg'
   },
-  CRYPTO: {
-    id: 'crypto',
-    name: 'Cryptocurrency',
-    icon: Bitcoin,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-50',
-    assets: {
-      BTC: {
-        name: 'Bitcoin',
-        symbol: '₿',
-        address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-        network: 'Bitcoin Mainnet',
-        qrValue: 'bitcoin:bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
-      },
-      ETH: {
-        name: 'Ethereum',
-        symbol: 'Ξ',
-        address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
-        network: 'Ethereum ERC-20',
-        qrValue: 'ethereum:0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
-      },
-      USDT: {
-        name: 'Tether (USDT)',
-        symbol: '₮',
-        address: 'TJ8vc98k3j0kfj983kfkj983kfj983kfj983',
-        network: 'TRON TRC-20',
-        memo: '8829-X'
-      },
-      BNB: {
-        name: 'Binance Coin',
-        symbol: '⎈',
-        address: 'bnb136ns6lfw4zs5hg4n85vdthu3n0v0v35',
-        network: 'Binance Chain BEP-2',
-        memo: '8829X'
-      }
-    }
+  ETH: {
+    id: 'ethereum',
+    name: 'Ethereum',
+    symbol: 'ETH',
+    logo: 'Ξ',
+    address: '0x55db224bC13918664b57aC1B4d46fDA48E03818f',
+    network: 'Ethereum ERC-20',
+    qrValue: 'ethereum:0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
   },
-  PAYPAL: {
-    id: 'paypal',
-    name: 'PayPal',
-    icon: CreditCard,
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-50',
-    symbol: '$',
-    details: {
-      email: 'settlements@sentinel-forensic.org',
-      businessName: 'Sentinel Forensic Advocacy',
-      note: 'Case 8829-X Retainer Fee',
-      currency: 'USD',
-      paypalMe: 'sentinelforensic'
-    }
+  USDT: {
+    id: 'tether',
+    name: 'Tether',
+    symbol: 'USDT',
+    logo: '₮',
+    address: 'TJ8vc98k3j0kfj983kfkj983kfj983kfj983',
+    network: 'TRON TRC-20',
+    memo: '8829-X'
   },
-  CASHAPP: {
-    id: 'cashapp',
-    name: 'Cash App',
-    icon: DollarSign,
-    color: 'text-green-500',
-    bgColor: 'bg-green-50',
-    symbol: '$',
-    details: {
-      cashtag: '$SentinelAdvocacy',
-      note: 'Case 8829-X',
-      recipient: 'Sentinel Forensic Services'
-    }
-  },
-  ZELLE: {
-    id: 'zelle',
-    name: 'Zelle',
-    icon: Banknote,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50',
-    symbol: '$',
-    details: {
-      email: 'legal@sentinel-advocacy.com',
-      phone: '+1 (555) 123-4567',
-      name: 'Sentinel Forensic Advocacy',
-      note: 'Case Retainer 8829-X'
-    }
-  },
-  VENMO: {
-    id: 'venmo',
-    name: 'Venmo',
-    icon: Wallet,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-50',
-    symbol: '$',
-    details: {
-      username: '@Sentinel-Forensic',
-      note: 'Case 8829-X Retainer',
-      businessProfile: true
-    }
+  BNB: {
+    id: 'binancecoin',
+    name: 'Binance Coin',
+    symbol: 'BNB',
+    logo: '⎈',
+    address: 'bnb136ns6lfw4zs5hg4n85vdthu3n0v0v35',
+    network: 'Binance Chain BEP-2',
+    memo: '8829X'
   }
 };
 
@@ -127,6 +53,21 @@ const CURRENCY_SYMBOLS = {
   ETH: 'Ξ'
 };
 
+// Type for crypto logo data from API
+interface CryptoLogoData {
+  [key: string]: {
+    id: string;
+    symbol: string;
+    name: string;
+    image: string;
+  };
+}
+
+// Type for file with preview
+interface FileWithPreview extends File {
+  preview?: string;
+}
+
 export const ReportScam: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -134,20 +75,23 @@ export const ReportScam: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [submissionError, setSubmissionError] = useState<string | null>(null);
-  const [submissionData, setSubmissionData] = useState<{
-    caseId: string;
-    timestamp: string;
-  } | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [cryptoLogos, setCryptoLogos] = useState<CryptoLogoData>({});
+  const [loadingLogos, setLoadingLogos] = useState(true);
+  const [showProcessingModal, setShowProcessingModal] = useState(false);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+  const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
+  
+  // Add states for custom scam type
+  const [showCustomScamInput, setShowCustomScamInput] = useState(false);
+  const [customScamType, setCustomScamType] = useState("");
 
   const evidenceInputRef = useRef<HTMLInputElement>(null);
   const paymentProofInputRef = useRef<HTMLInputElement>(null);
 
-  const [selectedMethod, setSelectedMethod] = useState<keyof typeof PAYMENT_PLATFORMS | null>(null);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  const [selectedCrypto, setSelectedCrypto] = useState<keyof typeof PAYMENT_PLATFORMS.CRYPTO.assets>("BTC");
-  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [selectedCrypto, setSelectedCrypto] = useState<keyof typeof CRYPTO_ASSETS>("BTC");
+  const [paymentProofFile, setPaymentProofFile] = useState<FileWithPreview | null>(null);
 
   const [formData, setFormData] = useState<ReportFormData>({
     scamType: "",
@@ -161,6 +105,55 @@ export const ReportScam: React.FC = () => {
     agreedToTerms: false
   });
 
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      // Cleanup evidence file previews
+      formData.evidenceFiles.forEach((file: FileWithPreview) => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview);
+        }
+      });
+      
+      // Cleanup payment proof preview
+      if (paymentProofPreview) {
+        URL.revokeObjectURL(paymentProofPreview);
+      }
+    };
+  }, [formData.evidenceFiles, paymentProofPreview]);
+
+  // Fetch crypto logos from CoinGecko API
+  useEffect(() => {
+    const fetchCryptoLogos = async () => {
+      try {
+        const cryptoIds = Object.values(CRYPTO_ASSETS).map(asset => asset.id).join(',');
+        const response = await fetch(
+          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${cryptoIds}&order=market_cap_desc&per_page=100&page=1&sparkline=false`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          const logoData: CryptoLogoData = {};
+          data.forEach((crypto: any) => {
+            logoData[crypto.symbol.toUpperCase()] = {
+              id: crypto.id,
+              symbol: crypto.symbol,
+              name: crypto.name,
+              image: crypto.image
+            };
+          });
+          setCryptoLogos(logoData);
+        }
+      } catch (error) {
+        console.error('Error fetching crypto logos:', error);
+      } finally {
+        setLoadingLogos(false);
+      }
+    };
+
+    fetchCryptoLogos();
+  }, []);
+
   // Calculate fees using useMemo to prevent recalculations
   const amountLostNum = useMemo(() => parseFloat(formData.amountLost) || 0, [formData.amountLost]);
   const totalFee = useMemo(() => amountLostNum * 0.05, [amountLostNum]);
@@ -168,16 +161,15 @@ export const ReportScam: React.FC = () => {
   const feeLegal = useMemo(() => totalFee * 0.32, [totalFee]);
   const feeGov = useMemo(() => totalFee * 0.20, [totalFee]);
 
-  // Generate QR code for cryptocurrency payments
+  // Generate QR code for cryptocurrency payments - DISABLED
   useEffect(() => {
-    if (selectedMethod === 'CRYPTO' && PAYMENT_PLATFORMS.CRYPTO.assets[selectedCrypto]?.qrValue) {
-      const cryptoAsset = PAYMENT_PLATFORMS.CRYPTO.assets[selectedCrypto];
+    if (CRYPTO_ASSETS[selectedCrypto]?.qrValue) {
+      const cryptoAsset = CRYPTO_ASSETS[selectedCrypto];
       const qrData = cryptoAsset.qrValue;
-      
-      // Using a QR code generation service (QRServer as example)
-      setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`);
+      // QR code generation disabled as requested
+      // setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`);
     }
-  }, [selectedMethod, selectedCrypto]);
+  }, [selectedCrypto]);
 
   const formatMoney = (val: number) => {
     const currencySymbol = CURRENCY_SYMBOLS[formData.currency as keyof typeof CURRENCY_SYMBOLS] || formData.currency;
@@ -188,35 +180,144 @@ export const ReportScam: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'scamType') {
+      if (value === 'custom') {
+        setShowCustomScamInput(true);
+        // Keep the previous value if there was one
+        if (customScamType) {
+          setFormData(prev => ({ ...prev, scamType: customScamType }));
+        } else {
+          setFormData(prev => ({ ...prev, scamType: '' }));
+        }
+      } else {
+        setShowCustomScamInput(false);
+        setCustomScamType('');
+        setFormData(prev => ({ ...prev, scamType: value }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  // Handle custom scam type input change
+  const handleCustomScamTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomScamType(value);
+    setFormData(prev => ({ ...prev, scamType: value }));
   };
 
   const handleEvidenceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files).map(file => {
+        const fileWithPreview = file as FileWithPreview;
+        if (file.type.startsWith('image/')) {
+          fileWithPreview.preview = URL.createObjectURL(file);
+        }
+        return fileWithPreview;
+      });
+      
       setFormData(prev => ({
         ...prev,
-        evidenceFiles: [...prev.evidenceFiles, ...Array.from(e.target.files || [])]
+        evidenceFiles: [...prev.evidenceFiles, ...newFiles]
       }));
     }
   };
 
   const handlePaymentProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setPaymentProofFile(e.target.files[0]);
+      const file = e.target.files[0] as FileWithPreview;
+      
+      // Cleanup previous preview
+      if (paymentProofPreview) {
+        URL.revokeObjectURL(paymentProofPreview);
+      }
+      
+      if (file.type.startsWith('image/')) {
+        const previewUrl = URL.createObjectURL(file);
+        setPaymentProofPreview(previewUrl);
+        file.preview = previewUrl;
+      }
+      
+      setPaymentProofFile(file);
+      // Show processing modal and disable button
+      setIsPaymentProcessing(true);
+      setShowProcessingModal(true);
     }
-  };
-
-  const handleMethodSelect = (method: keyof typeof PAYMENT_PLATFORMS) => {
-    setSelectedMethod(method);
-    setIsLoadingDetails(true);
-    setPaymentProofFile(null);
-    setTimeout(() => {
-      setIsLoadingDetails(false);
-    }, 800);
   };
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
+  };
+
+  const handleCloseProcessingModal = () => {
+    setShowProcessingModal(false);
+    // Button remains disabled until manually enabled
+  };
+
+  // Function to manually enable the button (for admin use)
+  const enablePaymentButton = () => {
+    setIsPaymentProcessing(false);
+    console.log('Payment button enabled manually');
+  };
+
+  // Expose the enable function globally for admin use
+  useEffect(() => {
+    // @ts-ignore
+    window.enablePaymentButton = enablePaymentButton;
+    return () => {
+      // @ts-ignore
+      delete window.enablePaymentButton;
+    };
+  }, []);
+
+  const generateEmailContent = () => {
+    const subject = `Scam Report - Case ${Date.now().toString().slice(-6)}`;
+    const body = `
+SCAM REPORT SUBMISSION
+
+Case Details:
+----------------
+Case ID: ${Date.now().toString().slice(-6)}
+Submission Date: ${new Date().toLocaleString()}
+
+Your Information:
+----------------
+Type of Scam: ${formData.scamType}
+Amount Lost: ${formatMoney(amountLostNum)}
+Currency: ${formData.currency}
+Date it Happened: ${formData.dateOccurred}
+
+What Happened:
+${formData.description}
+
+Scammer Information:
+${formData.scammerDetails || 'Not provided'}
+
+Your Contact Information:
+----------------
+Email: ${formData.contactEmail}
+
+Payment Information:
+----------------
+Selected Cryptocurrency: ${CRYPTO_ASSETS[selectedCrypto].name} (${selectedCrypto})
+Payment Address: ${CRYPTO_ASSETS[selectedCrypto].address}
+${CRYPTO_ASSETS[selectedCrypto].memo ? `Memo/Note: ${CRYPTO_ASSETS[selectedCrypto].memo}` : ''}
+Network: ${CRYPTO_ASSETS[selectedCrypto].network}
+
+Service Fee: ${displayFee} (5% of reported loss)
+
+Files Attached: ${formData.evidenceFiles.length} file(s)
+Payment Proof: ${paymentProofFile ? paymentProofFile.name : 'Not attached'}
+
+Agreed to Terms: ${formData.agreedToTerms ? 'Yes' : 'No'}
+
+---
+This report was created through Sentinel Forensic Advocacy.
+All information is kept safe and private.
+    `;
+
+    return { subject, body };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -224,36 +325,43 @@ export const ReportScam: React.FC = () => {
     setIsSubmitting(true);
     setSubmissionError(null);
 
-    // Use the submission service
-    const result = await submitFormData(
-      formData,
-      selectedMethod,
-      selectedMethod === 'CRYPTO' ? selectedCrypto : null,
-      paymentProofFile
-    );
-
-    if (result.success) {
-      // Store submission data
-      setSubmissionData({
-        caseId: result.caseId || '',
-        timestamp: result.timestamp || new Date().toISOString()
-      });
+    try {
+      // Generate email content
+      const { subject, body } = generateEmailContent();
       
-      localStorage.setItem('lastCaseId', result.caseId || '');
-      localStorage.setItem('lastSubmissionTime', new Date().toISOString());
+      // Create mailto link with form data
+      const mailtoLink = `mailto:sentinelhonestscamreport@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       
+      // Open Gmail specifically
+      const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=sentinelhonestscamreport@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      
+      // Try to open Gmail first, fall back to mailto
+      window.open(gmailLink, '_blank') || window.open(mailtoLink, '_blank');
+      
+      // Set success state
       setIsSuccess(true);
-      // Show the email modal after a short delay
-      setTimeout(() => {
-        setShowEmailModal(true);
-      }, 1000);
-    } else {
-      setSubmissionError(result.error || 'Failed to submit form. Please try again.');
+      setShowEmailModal(true);
+      
+    } catch (error) {
+      setSubmissionError('Failed to prepare email. Please try again.');
+      console.error('Submission error:', error);
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleResetForm = () => {
+    // Cleanup preview URLs
+    formData.evidenceFiles.forEach((file: FileWithPreview) => {
+      if (file.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+    });
+    
+    if (paymentProofPreview) {
+      URL.revokeObjectURL(paymentProofPreview);
+    }
+    
     setStep(1);
     setIsSuccess(false);
     setFormData({
@@ -267,12 +375,17 @@ export const ReportScam: React.FC = () => {
       contactEmail: "",
       agreedToTerms: false
     });
-    setSelectedMethod(null);
-    setPaymentProofFile(null);
     setSelectedCrypto("BTC");
+    setPaymentProofFile(null);
+    setPaymentProofPreview(null);
     setSubmissionError(null);
     setShowEmailModal(false);
     setCopiedEmail(false);
+    // Reset the new states
+    setShowProcessingModal(false);
+    setIsPaymentProcessing(false);
+    setShowCustomScamInput(false);
+    setCustomScamType("");
   };
 
   const handleCopyEmail = () => {
@@ -285,9 +398,19 @@ export const ReportScam: React.FC = () => {
     });
   };
 
+  // Helper function to check if file is an image
+  const isImageFile = (file: File) => {
+    return file.type.startsWith('image/');
+  };
+
+  // Helper function to check if file is a PDF
+  const isPDFFile = (file: File) => {
+    return file.type === 'application/pdf';
+  };
+
   if (isSuccess) {
-    const lastCaseId = submissionData?.caseId || localStorage.getItem('lastCaseId') || '8829-X';
-    const lastTime = submissionData?.timestamp || localStorage.getItem('lastSubmissionTime') || new Date().toISOString();
+    const lastCaseId = Date.now().toString().slice(-6);
+    const lastTime = new Date().toISOString();
     
     return (
       <div className="pt-32 pb-24 min-h-screen bg-slate-50 flex items-center justify-center px-4">
@@ -296,14 +419,14 @@ export const ReportScam: React.FC = () => {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Case Submission Complete</h1>
-            <p className="text-slate-600 text-lg">Your forensic investigation request has been successfully submitted and is now being processed.</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Report Ready to Send</h1>
+            <p className="text-slate-600 text-lg">Your scam report has been prepared and is ready to send.</p>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
               <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-primary-600" /> Case Details
+                <FileCheck className="w-5 h-5 text-primary-600" /> Your Report Details
               </h2>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-3 border-b border-slate-200">
@@ -311,15 +434,15 @@ export const ReportScam: React.FC = () => {
                   <span className="font-mono font-bold text-slate-900 text-lg">{lastCaseId}</span>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                  <span className="text-slate-600">Submission Time:</span>
+                  <span className="text-slate-600">Time Submitted:</span>
                   <span className="font-medium">{new Date(lastTime).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                  <span className="text-slate-600">Contact Email:</span>
+                  <span className="text-slate-600">Your Email:</span>
                   <span className="font-medium text-primary-600">{formData.contactEmail}</span>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                  <span className="text-slate-600">Scam Type:</span>
+                  <span className="text-slate-600">Type of Scam:</span>
                   <span className="font-medium">{formData.scamType || 'Not specified'}</span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -331,28 +454,28 @@ export const ReportScam: React.FC = () => {
             
             <div className="bg-primary-50 rounded-xl p-6 border border-primary-200">
               <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary-600" /> Next Steps
+                <Shield className="w-5 h-5 text-primary-600" /> What Happens Next
               </h2>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">1</div>
                   <div>
-                    <p className="font-medium text-slate-900">Case Review & Assignment</p>
-                    <p className="text-sm text-slate-600">Our forensic team will review your submission within 24 hours.</p>
+                    <p className="font-medium text-slate-900">Open Gmail</p>
+                    <p className="text-sm text-slate-600">Gmail will open with your report ready to send.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">2</div>
                   <div>
-                    <p className="font-medium text-slate-900">Preliminary Dossier</p>
-                    <p className="text-sm text-slate-600">A detailed forensic report will be sent to your email within 48 hours.</p>
+                    <p className="font-medium text-slate-900">Send the Email</p>
+                    <p className="text-sm text-slate-600">Click "Send" in Gmail to submit your report.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">3</div>
                   <div>
-                    <p className="font-medium text-slate-900">Investigation Commences</p>
-                    <p className="text-sm text-slate-600">Our team will begin the forensic analysis and fund tracing process.</p>
+                    <p className="font-medium text-slate-900">We Review Your Case</p>
+                    <p className="text-sm text-slate-600">Our team will look at your report within 24 hours.</p>
                   </div>
                 </div>
               </div>
@@ -360,22 +483,23 @@ export const ReportScam: React.FC = () => {
               <div className="mt-6 pt-4 border-t border-primary-200">
                 <div className="flex items-center gap-2 text-sm text-slate-600">
                   <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span><strong>Data Saved:</strong> Your report has been securely stored in our system database.</span>
+                  <span><strong>Ready to Send:</strong> All your information has been added to Gmail.</span>
                 </div>
               </div>
             </div>
           </div>
           
           <div className="bg-slate-50 rounded-lg p-6 border border-slate-200 mb-8">
-            <h3 className="font-semibold text-slate-900 mb-3">What happens next?</h3>
+            <h3 className="font-semibold text-slate-900 mb-3">Gmail Instructions</h3>
             <p className="text-slate-600 mb-4">
-              You will receive an email confirmation shortly. Our forensic team will contact you at <strong>{formData.contactEmail}</strong> 
-              within 24 hours to discuss your case in detail. If you have any immediate questions, please reference your Case ID: 
-              <span className="font-mono font-bold ml-2">{lastCaseId}</span>
+              Gmail should have opened with your report. If it didn't open, please send your report to:
             </p>
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="font-mono text-lg font-bold text-primary-600 bg-white p-3 rounded border border-slate-200 text-center">
+              sentinelhonestscamreport@gmail.com
+            </div>
+            <div className="flex items-center gap-2 text-sm text-slate-500 mt-4">
               <Info className="w-4 h-4" />
-              <span>All case data is encrypted and stored securely in compliance with data protection regulations.</span>
+              <span>Please include your Case ID: <span className="font-mono font-bold">{lastCaseId}</span> in your email.</span>
             </div>
           </div>
           
@@ -384,96 +508,16 @@ export const ReportScam: React.FC = () => {
               onClick={() => navigate('/')} 
               className="bg-slate-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex-1 sm:flex-none"
             >
-              Return to Dashboard
+              Go Back Home
             </button>
             <button 
               onClick={handleResetForm}
               className="bg-white border-2 border-primary-500 text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors flex-1 sm:flex-none"
             >
-              Submit Another Report
+              Report Another Scam
             </button>
           </div>
         </div>
-
-        {/* Email Modal */}
-        {showEmailModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-slide-up">
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Mail className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900">Payment Verification Required</h3>
-                      <p className="text-sm text-slate-500 mt-1">Final step to complete your case submission</p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setShowEmailModal(false)}
-                    className="text-slate-400 hover:text-slate-600 transition-colors p-1 hover:bg-slate-100 rounded-lg"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-                
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                    <div className="text-sm text-blue-800">
-                      <p className="font-medium mb-1">Important: Send your payment screenshot</p>
-                      <p>To verify your payment and expedite your case processing, please send a screenshot or photo of your payment confirmation to our verification team.</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-slate-50 rounded-lg p-4 mb-6 border border-slate-200">
-                  <div className="text-center mb-3">
-                    <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-100 rounded-full mb-3">
-                      <Mail className="w-6 h-6 text-primary-600" />
-                    </div>
-                    <h4 className="font-bold text-slate-900">Send proof to:</h4>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-mono font-bold text-primary-600 bg-white p-3 rounded-lg border border-slate-200 mb-3">
-                      sentinelhonestscamreport@gmail.com
-                    </div>
-                    <div className="text-sm text-slate-600 mb-3">
-                      Copy the email address to send your payment proof
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col gap-3">
-                  <button 
-                    onClick={handleCopyEmail}
-                    className="bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
-                  >
-                    {copiedEmail ? (
-                      <>
-                        <Check className="w-5 h-5 text-green-400" />
-                        Email Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-5 h-5" />
-                        Copy Email Address
-                      </>
-                    )}
-                  </button>
-                </div>
-                
-                <div className="mt-6 pt-4 border-t border-slate-200">
-                  <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <Shield className="w-4 h-4 text-slate-400" />
-                    <span>Your payment proof will be securely encrypted and used solely for verification purposes.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -483,8 +527,8 @@ export const ReportScam: React.FC = () => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="mb-10 text-center">
-          <h1 className="text-3xl font-bold text-slate-900 mb-4">Formal Incident Disclosure</h1>
-          <p className="text-slate-600">Procedural Phase {step} of 4</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-4">Report a Cryptocurrency Scam</h1>
+          <p className="text-slate-600">Step {step} of 4</p>
           <div className="w-full bg-slate-200 h-2 rounded-full mt-4">
             <div 
               className="bg-primary-500 h-2 rounded-full transition-all duration-500" 
@@ -497,27 +541,26 @@ export const ReportScam: React.FC = () => {
           <div className="bg-primary-50 border border-primary-200 p-4 rounded-lg mb-8 flex gap-3 items-start">
             <AlertTriangle className="w-5 h-5 text-primary-600 shrink-0 mt-0.5" />
             <div className="text-sm text-primary-900">
-              <strong>Statutory Notice:</strong> Sentinel will never solicit cryptographic private keys, mnemonic phrases, or administrative passwords. Such requests are characteristic of fraudulent entities.
+              <strong>Important:</strong> We will never ask for your private keys, passwords, or secret phrases. Anyone asking for these is trying to scam you.
             </div>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative">
           
-          {/* Display submission error if any */}
           {submissionError && (
             <div className="mb-6 bg-red-50 border border-red-200 p-4 rounded-lg">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-red-800 text-sm font-medium">Submission Failed</p>
+                  <p className="text-red-800 text-sm font-medium">Something Went Wrong</p>
                   <p className="text-red-600 text-sm mt-1">{submissionError}</p>
                   <button 
                     type="button" 
                     onClick={() => setSubmissionError(null)} 
                     className="text-red-600 hover:text-red-800 text-sm mt-2 font-medium"
                   >
-                    Dismiss
+                    OK
                   </button>
                 </div>
               </div>
@@ -526,27 +569,45 @@ export const ReportScam: React.FC = () => {
 
           {step === 1 && (
             <div className="space-y-6 animate-fade-in">
-              <h2 className="text-xl font-bold text-slate-900">Incident Class & Valuation</h2>
+              <h2 className="text-xl font-bold text-slate-900">Tell Us About the Scam</h2>
               
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Matter Classification</label>
-                <select 
-                  name="scamType" 
-                  value={formData.scamType} 
-                  onChange={handleChange}
-                  className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                  required
-                >
-                  <option value="">Select a category...</option>
-                  {Object.values(ScamType).map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Type of Scam</label>
+                <div className="space-y-3">
+                  <select 
+                    name="scamType" 
+                    value={showCustomScamInput ? 'custom' : formData.scamType} 
+                    onChange={handleChange}
+                    className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                    required
+                  >
+                    <option value="">Choose the type of scam...</option>
+                    {Object.values(ScamType).map((type) => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                    <option value="custom">Other (Please specify)</option>
+                  </select>
+                  
+                  {showCustomScamInput && (
+                    <div className="animate-fade-in">
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Please describe the type of scam:</label>
+                      <input 
+                        type="text"
+                        value={customScamType}
+                        onChange={handleCustomScamTypeChange}
+                        placeholder="e.g., Fake investment platform, Romance scam, Fake exchange, Phishing website, etc."
+                        className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none placeholder-slate-400"
+                        required={showCustomScamInput}
+                      />
+                      <p className="text-xs text-slate-500 mt-1">Please be specific about how you were scammed</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Valuation of Loss</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">How Much Did You Lose?</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">
                       {CURRENCY_SYMBOLS[formData.currency as keyof typeof CURRENCY_SYMBOLS] || formData.currency}
@@ -565,24 +626,24 @@ export const ReportScam: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Currency Denomination</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Currency</label>
                   <select 
                     name="currency" 
                     value={formData.currency}
                     onChange={handleChange}
                     className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none appearance-none"
                   >
-                    <option value="USD">USD - United States Dollar ($)</option>
-                    <option value="EUR">EUR - Euro (€)</option>
-                    <option value="GBP">GBP - British Pound (£)</option>
-                    <option value="BTC">BTC - Bitcoin (₿)</option>
-                    <option value="ETH">ETH - Ethereum (Ξ)</option>
+                    <option value="USD">US Dollars ($)</option>
+                    <option value="EUR">Euros (€)</option>
+                    <option value="GBP">British Pounds (£)</option>
+                    <option value="BTC">Bitcoin (₿)</option>
+                    <option value="ETH">Ethereum (Ξ)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Effective Date of Incident</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">When Did This Happen?</label>
                 <input 
                   type="date" 
                   name="dateOccurred"
@@ -596,46 +657,58 @@ export const ReportScam: React.FC = () => {
 
               <button 
                 type="button" 
-                onClick={() => setStep(2)}
+                onClick={() => {
+                  // Validate custom scam type if selected
+                  if (showCustomScamInput && !customScamType.trim()) {
+                    setSubmissionError("Please describe the type of scam");
+                    return;
+                  }
+                  // Validate regular scam type if not custom
+                  if (!showCustomScamInput && !formData.scamType) {
+                    setSubmissionError("Please select or describe the type of scam");
+                    return;
+                  }
+                  setStep(2);
+                }}
                 className="w-full bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors mt-4"
               >
-                Proceed to Evidentiary Intake
+                Next: Tell Us More Details
               </button>
             </div>
           )}
 
           {step === 2 && (
             <div className="space-y-6 animate-fade-in">
-              <h2 className="text-xl font-bold text-slate-900">Narrative & Supporting Evidence</h2>
+              <h2 className="text-xl font-bold text-slate-900">More Information</h2>
               
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Detailed Case Narrative</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Tell Us What Happened</label>
                 <textarea 
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   rows={4}
-                  placeholder="Provide a comprehensive timeline of events, including method of initial contact and transfer protocols..."
+                  placeholder="Please tell us the whole story. How did they contact you? What did they say? How did you send the money?..."
                   className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none placeholder-slate-400"
                   required
                 ></textarea>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Counterparty Particulars (Domains, Aliases, Metadata)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Scammer's Information (if you have it)</label>
                 <input 
                   type="text" 
                   name="scammerDetails"
                   value={formData.scammerDetails}
                   onChange={handleChange}
-                  placeholder="e.g. support@illicit-domain.com, +1-555-0192"
+                  placeholder="Scammer's email, phone number, website, username..."
                   className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none placeholder-slate-400"
                 />
               </div>
 
               <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center bg-slate-50">
                 <UploadCloud className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                <p className="text-sm text-slate-500 font-medium">Attach Documentary Evidence</p>
+                <p className="text-sm text-slate-500 font-medium">Add Photos or Documents (Optional)</p>
                 <input 
                   type="file" 
                   ref={evidenceInputRef}
@@ -649,24 +722,60 @@ export const ReportScam: React.FC = () => {
                   onClick={() => evidenceInputRef.current?.click()}
                   className="mt-4 px-4 py-2 bg-white border border-slate-300 rounded-md text-sm text-primary-600 font-bold hover:bg-slate-50 shadow-sm transition-colors"
                 >
-                  Select Instruments
+                  Choose Files
                 </button>
                 {formData.evidenceFiles.length > 0 && (
-                  <div className="mt-4 text-left space-y-2">
-                    {formData.evidenceFiles.map((file, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 bg-slate-100 p-2 rounded">
-                        <FileText className="w-4 h-4" />
-                        <span className="truncate flex-1">{file.name}</span>
-                        <span className="text-slate-400 text-xs">{(file.size / 1024).toFixed(1)} KB</span>
-                      </div>
-                    ))}
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium text-slate-700 mb-2">Files Added:</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {formData.evidenceFiles.map((file: FileWithPreview, idx) => (
+                        <div key={idx} className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+                          {isImageFile(file) && file.preview ? (
+                            <div>
+                              <div className="relative h-40 bg-slate-100">
+                                <img 
+                                  src={file.preview} 
+                                  alt={file.name}
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                              <div className="p-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <ImageIcon className="w-4 h-4 text-slate-500" />
+                                    <span className="text-sm font-medium text-slate-900 truncate">{file.name}</span>
+                                  </div>
+                                  <span className="text-xs text-slate-500">{(file.size / 1024).toFixed(1)} KB</span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                  {isPDFFile(file) ? (
+                                    <FileText className="w-5 h-5 text-blue-600" />
+                                  ) : (
+                                    <FileText className="w-5 h-5 text-slate-600" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-slate-900 truncate">{file.name}</div>
+                                  <div className="text-xs text-slate-500">{(file.size / 1024).toFixed(1)} KB</div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
 
               <div className="flex gap-4 mt-4">
-                <button type="button" onClick={() => setStep(1)} className="w-1/3 bg-white border border-slate-300 text-slate-700 py-3 rounded-lg font-semibold hover:bg-slate-50 transition-colors">Back</button>
-                <button type="button" onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors">Proceed to Matter Activation</button>
+                <button type="button" onClick={() => setStep(1)} className="w-1/3 bg-white border border-slate-300 text-slate-700 py-3 rounded-lg font-semibold hover:bg-slate-50 transition-colors">Go Back</button>
+                <button type="button" onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors">Next: Payment Information</button>
               </div>
             </div>
           )}
@@ -675,39 +784,39 @@ export const ReportScam: React.FC = () => {
             <div className="animate-fade-in">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Matter Activation</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Service Fee Required</h2>
                   <p className="text-slate-600 mb-6">
-                    A professional service fee of <strong>{displayFee}</strong> (5% of the total claim value) is required to commence forensic analysis. This fee facilitates the labor of technical memorialization and jurisdictional routing.
+                    To start working on your case, we need a service fee of <strong>{displayFee}</strong> (5% of what you lost). This fee helps us track your money and build your case.
                   </p>
                   <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 mb-6">
                     <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                      <Info className="w-5 h-5 text-primary-600" /> Professional Service Allocation
+                      <Info className="w-5 h-5 text-primary-600" /> What Your Fee Covers
                     </h3>
                     <div className="space-y-4">
                       <div className="flex justify-between items-start pb-4 border-b border-slate-200">
                         <div>
-                          <div className="font-bold text-slate-900">Forensic Fund Tracing</div>
-                          <div className="text-sm text-slate-500">Utilization of specialized software for transaction trail auditing.</div>
+                          <div className="font-bold text-slate-900">Tracking Your Money</div>
+                          <div className="text-sm text-slate-500">Using special tools to follow where your money went.</div>
                         </div>
                         <div className="font-semibold text-slate-900">{formatMoney(feeTracking)}</div>
                       </div>
                       <div className="flex justify-between items-start pb-4 border-b border-slate-200">
                         <div>
-                          <div className="font-bold text-slate-900">Legal Case Structuring</div>
-                          <div className="text-sm text-slate-500">Memorialization of facts into a formal legal instrument.</div>
+                          <div className="font-bold text-slate-900">Building Your Case</div>
+                          <div className="text-sm text-slate-500">Putting all the information together for you.</div>
                         </div>
                         <div className="font-semibold text-slate-900">{formatMoney(feeLegal)}</div>
                       </div>
                       <div className="flex justify-between items-start">
                         <div>
-                          <div className="font-bold text-slate-900">Regulatory Filing Fees</div>
-                          <div className="text-sm text-slate-500">Consolidated fees for international regulatory submissions.</div>
+                          <div className="font-bold text-slate-900">Government Fees</div>
+                          <div className="text-sm text-slate-500">Fees for reporting to the right places.</div>
                         </div>
                         <div className="font-semibold text-slate-900">{formatMoney(feeGov)}</div>
                       </div>
                     </div>
                     <div className="mt-6 pt-4 border-t-2 border-slate-900 flex justify-between items-center">
-                      <span className="font-bold text-slate-900 text-lg">Total Retainer Fee</span>
+                      <span className="font-bold text-slate-900 text-lg">Total Fee to Pay</span>
                       <span className="font-bold text-slate-900 text-2xl">{displayFee}</span>
                     </div>
                   </div>
@@ -715,245 +824,129 @@ export const ReportScam: React.FC = () => {
 
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col h-full">
                   <div className="bg-slate-900 p-4 text-white flex justify-between items-center">
-                    <span className="font-bold flex items-center gap-2"><Lock className="w-4 h-4" /> Secured Settlement Portal</span>
-                    <span className="text-xs bg-primary-500 text-slate-900 px-2 py-1 rounded">ENCRYPTED</span>
+                    <span className="font-bold flex items-center gap-2"><Bitcoin className="w-4 h-4" /> Send Cryptocurrency Payment</span>
+                    <span className="text-xs bg-primary-500 text-slate-900 px-2 py-1 rounded">SECURE</span>
                   </div>
                   <div className="p-6 flex-grow">
-                    {!selectedMethod ? (
-                      <div className="grid grid-cols-2 gap-4">
-                        {Object.entries(PAYMENT_PLATFORMS).map(([key, platform]) => {
-                          const Icon = platform.icon;
-                          return (
-                            <button 
-                              key={key}
-                              type="button" 
-                              onClick={() => handleMethodSelect(key as keyof typeof PAYMENT_PLATFORMS)}
-                              className={`p-4 border border-slate-200 rounded-xl hover:border-primary-500 transition-all text-left group ${platform.bgColor}`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg bg-white ${platform.color}`}>
-                                  <Icon className="w-6 h-6" />
-                                </div>
-                                <div>
-                                  <div className="font-bold text-slate-900">{platform.name}</div>
-                                  <div className="text-xs text-slate-500 mt-1">Secure {key === 'CRYPTO' ? 'blockchain' : 'bank-grade'} transfer</div>
-                                </div>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="h-full flex flex-col">
-                        <button type="button" onClick={() => setSelectedMethod(null)} className="text-sm text-slate-500 mb-4 flex items-center gap-1 hover:text-slate-900 transition-colors">
-                          &larr; Return to Settlement Channels
-                        </button>
-                        {isLoadingDetails ? (
-                          <div className="flex-grow flex flex-col items-center justify-center min-h-[300px]">
-                            <Loader2 className="w-12 h-12 text-primary-500 animate-spin mb-4" />
-                            <p className="text-slate-600 font-medium">Retrieving Secure Settlement Particulars...</p>
+                    <div className="h-full flex flex-col">
+                      <div className="animate-fade-in flex-grow">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="p-2 rounded-lg bg-orange-50 text-orange-500">
+                            <Bitcoin className="w-6 h-6" />
                           </div>
-                        ) : (
-                          <div className="animate-fade-in flex-grow">
-                            <div className="flex items-center gap-3 mb-4">
-                              <div className={`p-2 rounded-lg ${PAYMENT_PLATFORMS[selectedMethod].bgColor} ${PAYMENT_PLATFORMS[selectedMethod].color}`}>
-                                {React.createElement(PAYMENT_PLATFORMS[selectedMethod].icon, { className: "w-6 h-6" })}
+                          <h3 className="text-xl font-bold text-slate-900">Choose Your Cryptocurrency</h3>
+                        </div>
+                        
+                        <div className="mb-4">
+                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Available Options</label>
+                          <div className="grid grid-cols-2 gap-3">
+                            {Object.entries(CRYPTO_ASSETS).map(([key, asset]) => {
+                              const logoData = cryptoLogos[key];
+                              return (
+                                <button
+                                  key={key}
+                                  type="button"
+                                  onClick={() => setSelectedCrypto(key as keyof typeof CRYPTO_ASSETS)}
+                                  className={`p-4 rounded-xl border ${selectedCrypto === key ? 'border-primary-500 bg-primary-50' : 'border-slate-200 hover:border-slate-300'} transition-colors flex items-center justify-between`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {loadingLogos ? (
+                                      <div className="w-8 h-8 bg-slate-200 rounded-full animate-pulse"></div>
+                                    ) : logoData?.image ? (
+                                      <img 
+                                        src={logoData.image} 
+                                        alt={asset.name}
+                                        className="w-8 h-8 rounded-full"
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                          target.nextElementSibling?.classList.remove('hidden');
+                                        }}
+                                      />
+                                    ) : null}
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 ${logoData?.image ? 'hidden' : ''}`}>
+                                      <span className="text-lg font-bold">{asset.logo}</span>
+                                    </div>
+                                    <div className="text-left">
+                                      <div className="font-bold text-slate-900">{asset.symbol}</div>
+                                      <div className="text-xs text-slate-500 truncate">{asset.name}</div>
+                                    </div>
+                                  </div>
+                                  {selectedCrypto === key && <Check className="w-5 h-5 text-primary-600" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        
+                        <div className="bg-slate-50 p-5 rounded-lg border border-slate-200 mb-6 space-y-4">
+                          <div>
+                            <div className="mb-4">
+                              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Send {CRYPTO_ASSETS[selectedCrypto].name} Here</label>
+                              <div className="flex flex-col md:flex-row gap-6">
+                                <div className="flex-1">
+                                  <div className="text-xs text-slate-500 mb-2">Send to this address:</div>
+                                  <div className="font-mono text-sm break-all text-slate-900 font-bold mb-3 select-all bg-slate-100 p-3 rounded">
+                                    {CRYPTO_ASSETS[selectedCrypto].address}
+                                  </div>
+                                  {CRYPTO_ASSETS[selectedCrypto].memo && (
+                                    <div className="mb-3">
+                                      <div className="text-xs text-slate-500 mb-1">Memo/Note (Important!):</div>
+                                      <div className="font-mono text-sm text-slate-900 font-bold select-all bg-amber-50 p-2 rounded border border-amber-200">
+                                        {CRYPTO_ASSETS[selectedCrypto].memo}
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div className="flex gap-2">
+                                    <button type="button" onClick={() => handleCopy(CRYPTO_ASSETS[selectedCrypto].address)} className="flex-1 bg-slate-900 text-white py-2 rounded flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors">
+                                      <Copy className="w-4 h-4" /> Copy Address
+                                    </button>
+                                    <button type="button" onClick={() => handleCopy(CRYPTO_ASSETS[selectedCrypto].memo || '')} className="px-4 bg-amber-500 text-white py-2 rounded flex items-center justify-center gap-2 hover:bg-amber-600 transition-colors">
+                                      <Copy className="w-4 h-4" /> Copy Memo
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                              <h3 className="text-xl font-bold text-slate-900">{PAYMENT_PLATFORMS[selectedMethod].name} Particulars</h3>
-                            </div>
-                            
-                            <div className="bg-slate-50 p-5 rounded-lg border border-slate-200 mb-6 space-y-4">
-                              {selectedMethod === 'WIRE' && (
-                                <div className="space-y-3">
-                                  <div className="bg-white p-3 rounded border border-slate-200">
-                                    <div className="text-xs text-slate-500 uppercase font-semibold mb-1">Beneficiary Information</div>
-                                    <div className="font-mono text-sm text-slate-900 font-medium select-all">{PAYMENT_PLATFORMS.WIRE.details.beneficiary}</div>
-                                  </div>
-                                  <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-white p-3 rounded border border-slate-200">
-                                      <div className="text-xs text-slate-500 mb-1">Account Number</div>
-                                      <div className="font-mono text-sm text-slate-900 font-medium select-all">{PAYMENT_PLATFORMS.WIRE.details.accountNumber}</div>
-                                    </div>
-                                    <div className="bg-white p-3 rounded border border-slate-200">
-                                      <div className="text-xs text-slate-500 mb-1">Routing Number</div>
-                                      <div className="font-mono text-sm text-slate-900 font-medium select-all">{PAYMENT_PLATFORMS.WIRE.details.routingNumber}</div>
-                                    </div>
-                                  </div>
-                                  <div className="bg-white p-3 rounded border border-slate-200">
-                                    <div className="text-xs text-slate-500 mb-1">SWIFT/BIC Code</div>
-                                    <div className="font-mono text-sm text-slate-900 font-medium select-all flex items-center justify-between">
-                                      {PAYMENT_PLATFORMS.WIRE.details.swiftCode}
-                                      <button type="button" onClick={() => handleCopy(PAYMENT_PLATFORMS.WIRE.details.swiftCode)} className="text-xs bg-slate-100 px-2 py-1 rounded flex items-center gap-1 hover:bg-slate-200 transition-colors">
-                                        <Copy className="w-3 h-3" /> Copy
-                                      </button>
-                                    </div>
-                                  </div>
-                                  <div className="text-xs text-slate-500 p-2 bg-blue-50 rounded border border-blue-100">
-                                    <strong>Reference:</strong> {PAYMENT_PLATFORMS.WIRE.details.reference}
-                                  </div>
-                                </div>
-                              )}
-
-                              {selectedMethod === 'CRYPTO' && (
-                                <div>
-                                  <div className="mb-4">
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Select Cryptographic Asset</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                      {Object.entries(PAYMENT_PLATFORMS.CRYPTO.assets).map(([key, asset]) => (
-                                        <button
-                                          key={key}
-                                          type="button"
-                                          onClick={() => setSelectedCrypto(key as keyof typeof PAYMENT_PLATFORMS.CRYPTO.assets)}
-                                          className={`p-3 rounded-lg border ${selectedCrypto === key ? 'border-primary-500 bg-primary-50' : 'border-slate-200 hover:border-slate-300'} transition-colors`}
-                                        >
-                                          <div className="flex items-center justify-between">
-                                            <div className="text-left">
-                                              <div className="font-bold text-slate-900">{asset.symbol} {key}</div>
-                                              <div className="text-xs text-slate-500 truncate">{asset.name}</div>
-                                            </div>
-                                            {selectedCrypto === key && <Check className="w-4 h-4 text-primary-600" />}
-                                          </div>
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <div className="bg-white p-4 rounded-lg border border-slate-200">
-                                    <div className="flex flex-col md:flex-row gap-6">
-                                      {qrCodeUrl && (
-                                        <div className="md:w-1/3">
-                                          <div className="text-xs text-slate-500 mb-2 text-center">Scan QR Code</div>
-                                          <img 
-                                            src={qrCodeUrl} 
-                                            alt="Payment QR Code" 
-                                            className="w-full max-w-[160px] mx-auto border border-slate-200 rounded-lg"
-                                          />
-                                          <div className="text-xs text-slate-500 text-center mt-2">{PAYMENT_PLATFORMS.CRYPTO.assets[selectedCrypto].network}</div>
-                                        </div>
-                                      )}
-                                      <div className="flex-1">
-                                        <div className="text-xs text-slate-500 mb-2">Consign {selectedCrypto} assets to:</div>
-                                        <div className="font-mono text-sm break-all text-slate-900 font-bold mb-3 select-all bg-slate-100 p-3 rounded">
-                                          {PAYMENT_PLATFORMS.CRYPTO.assets[selectedCrypto].address}
-                                        </div>
-                                        {PAYMENT_PLATFORMS.CRYPTO.assets[selectedCrypto].memo && (
-                                          <div className="mb-3">
-                                            <div className="text-xs text-slate-500 mb-1">Memo/Note (Required):</div>
-                                            <div className="font-mono text-sm text-slate-900 font-bold select-all bg-amber-50 p-2 rounded border border-amber-200">
-                                              {PAYMENT_PLATFORMS.CRYPTO.assets[selectedCrypto].memo}
-                                            </div>
-                                          </div>
-                                        )}
-                                        <div className="flex gap-2">
-                                          <button type="button" onClick={() => handleCopy(PAYMENT_PLATFORMS.CRYPTO.assets[selectedCrypto].address)} className="flex-1 bg-slate-900 text-white py-2 rounded flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors">
-                                            <Copy className="w-4 h-4" /> Copy Address
-                                          </button>
-                                          <button type="button" onClick={() => handleCopy(PAYMENT_PLATFORMS.CRYPTO.assets[selectedCrypto].memo || '')} className="px-4 bg-amber-500 text-white py-2 rounded flex items-center justify-center gap-2 hover:bg-amber-600 transition-colors">
-                                            <Copy className="w-4 h-4" /> Copy Memo
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-
-                              {selectedMethod === 'PAYPAL' && (
-                                <div className="text-center py-4">
-                                  <div className="bg-white p-4 rounded-lg border border-slate-200 mb-4">
-                                    <p className="text-slate-600 mb-3">Transfer settlement of <strong>{displayFee}</strong> via PayPal to:</p>
-                                    <div className="text-xl font-bold text-slate-900 font-mono select-all mb-2 flex items-center justify-center gap-2">
-                                      <Mail className="w-5 h-5 text-blue-400" />
-                                      {PAYMENT_PLATFORMS.PAYPAL.details.email}
-                                    </div>
-                                    <div className="text-sm text-slate-500 space-y-1">
-                                      <div>Business: {PAYMENT_PLATFORMS.PAYPAL.details.businessName}</div>
-                                      <div className="uppercase tracking-wider bg-slate-100 inline-block px-2 py-1 rounded text-xs font-bold">Reference: {PAYMENT_PLATFORMS.PAYPAL.details.note}</div>
-                                    </div>
-                                  </div>
-                                  <div className="text-xs text-slate-500 p-3 bg-blue-50 rounded border border-blue-100">
-                                    <strong>Alternative:</strong> Send via PayPal.Me to <strong>{PAYMENT_PLATFORMS.PAYPAL.details.paypalMe}</strong>
-                                  </div>
-                                </div>
-                              )}
-
-                              {selectedMethod === 'CASHAPP' && (
-                                <div className="text-center py-4">
-                                  <div className="bg-white p-4 rounded-lg border border-slate-200 mb-4">
-                                    <p className="text-slate-600 mb-3">Transfer settlement of <strong>{displayFee}</strong> via Cash App to:</p>
-                                    <div className="text-2xl font-bold text-slate-900 font-mono select-all mb-2">
-                                      {PAYMENT_PLATFORMS.CASHAPP.details.cashtag}
-                                    </div>
-                                    <div className="text-sm text-slate-500 space-y-1">
-                                      <div>Recipient: {PAYMENT_PLATFORMS.CASHAPP.details.recipient}</div>
-                                      <div className="uppercase tracking-wider bg-slate-100 inline-block px-2 py-1 rounded text-xs font-bold">Note: {PAYMENT_PLATFORMS.CASHAPP.details.note}</div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-
-                              {selectedMethod === 'ZELLE' && (
-                                <div className="text-center py-4">
-                                  <div className="bg-white p-4 rounded-lg border border-slate-200 mb-4">
-                                    <p className="text-slate-600 mb-3">Transfer settlement of <strong>{displayFee}</strong> via Zelle to:</p>
-                                    <div className="space-y-3">
-                                      <div>
-                                        <div className="text-xs text-slate-500 mb-1">Email Address</div>
-                                        <div className="text-lg font-bold text-slate-900 font-mono select-all flex items-center justify-center gap-2">
-                                          <Mail className="w-5 h-5 text-purple-500" />
-                                          {PAYMENT_PLATFORMS.ZELLE.details.email}
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <div className="text-xs text-slate-500 mb-1">Mobile Number</div>
-                                        <div className="text-lg font-bold text-slate-900 font-mono select-all flex items-center justify-center gap-2">
-                                          <PhoneIcon className="w-5 h-5 text-purple-500" />
-                                          {PAYMENT_PLATFORMS.ZELLE.details.phone}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="text-sm text-slate-500 mt-4">
-                                      <div>Registered Name: {PAYMENT_PLATFORMS.ZELLE.details.name}</div>
-                                      <div className="uppercase tracking-wider bg-slate-100 inline-block px-2 py-1 rounded text-xs font-bold mt-2">Memo: {PAYMENT_PLATFORMS.ZELLE.details.note}</div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-
-                              {selectedMethod === 'VENMO' && (
-                                <div className="text-center py-4">
-                                  <div className="bg-white p-4 rounded-lg border border-slate-200 mb-4">
-                                    <p className="text-slate-600 mb-3">Transfer settlement of <strong>{displayFee}</strong> via Venmo to:</p>
-                                    <div className="text-2xl font-bold text-slate-900 font-mono select-all mb-2">
-                                      {PAYMENT_PLATFORMS.VENMO.details.username}
-                                    </div>
-                                    <div className="text-sm text-slate-500 space-y-1">
-                                      <div className="flex items-center justify-center gap-2">
-                                        <Shield className="w-4 h-4 text-green-500" />
-                                        Verified Business Profile
-                                      </div>
-                                      <div className="uppercase tracking-wider bg-slate-100 inline-block px-2 py-1 rounded text-xs font-bold">Note: {PAYMENT_PLATFORMS.VENMO.details.note}</div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
                             </div>
                             
                             <div className="border-t border-slate-200 pt-6">
-                              <label className="block text-sm font-bold text-slate-900 mb-2">Settlement Verification Certificate</label>
+                              <label className="block text-sm font-bold text-slate-900 mb-2">Proof of Payment (Required)</label>
                               <input type="file" ref={paymentProofInputRef} className="hidden" onChange={handlePaymentProofChange} accept=".jpg,.jpeg,.png,.pdf,.heic" />
                               <div onClick={() => paymentProofInputRef.current?.click()} className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${paymentProofFile ? 'border-green-500 bg-green-50' : 'border-slate-300 hover:border-primary-500'}`}>
                                 {paymentProofFile ? (
-                                  <div className="flex items-center justify-center gap-2 text-green-700 font-medium">
-                                    <CheckCircle className="w-5 h-5" />
-                                    <div className="text-left">
-                                      <div className="font-medium">{paymentProofFile.name}</div>
-                                      <div className="text-xs text-green-600">{(paymentProofFile.size / 1024).toFixed(1)} KB • Ready for verification</div>
-                                    </div>
+                                  <div className="space-y-3">
+                                    {paymentProofPreview ? (
+                                      <div>
+                                        <div className="text-sm text-slate-500 mb-2">Payment Screenshot:</div>
+                                        <div className="relative h-48 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                          <img 
+                                            src={paymentProofPreview} 
+                                            alt="Payment proof"
+                                            className="w-full h-full object-contain"
+                                          />
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center justify-center gap-2 text-green-700 font-medium">
+                                        <CheckCircle className="w-5 h-5" />
+                                        <div className="text-left">
+                                          <div className="font-medium">{paymentProofFile.name}</div>
+                                          <div className="text-xs text-green-600">{(paymentProofFile.size / 1024).toFixed(1)} KB • Ready for verification</div>
+                                        </div>
+                                      </div>
+                                    )}
+                                    <button 
+                                      type="button"
+                                      onClick={() => paymentProofInputRef.current?.click()}
+                                      className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                                    >
+                                      Change File
+                                    </button>
                                   </div>
                                 ) : (
                                   <div className="text-slate-500">
                                     <UploadCloud className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                                    <span className="text-sm">Attach Instrument of Remittance (Screenshot/Receipt)</span>
+                                    <span className="text-sm">Add Screenshot or Receipt</span>
                                     <div className="text-xs text-slate-400 mt-1">JPG, PNG, PDF, or HEIC files accepted</div>
                                   </div>
                                 )}
@@ -961,16 +954,29 @@ export const ReportScam: React.FC = () => {
                               <button 
                                 type="button" 
                                 onClick={() => setStep(4)} 
-                                disabled={!paymentProofFile}
-                                className={`w-full mt-6 py-4 rounded-lg font-bold shadow-lg transition-all flex justify-center items-center ${paymentProofFile ? 'bg-primary-500 text-slate-900 hover:bg-primary-400 hover:shadow-xl' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+                                disabled={!paymentProofFile || isPaymentProcessing}
+                                className={`w-full mt-6 py-4 rounded-lg font-bold shadow-lg transition-all flex justify-center items-center ${
+                                  (!paymentProofFile || isPaymentProcessing) 
+                                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
+                                    : 'bg-primary-500 text-slate-900 hover:bg-primary-400 hover:shadow-xl'
+                                }`}
                               >
-                                {paymentProofFile ? '✓ Confirm Settlement Verification' : 'Attach Proof to Continue'}
+                                {isPaymentProcessing ? (
+                                  <span className="flex items-center gap-2">
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Checking Your Payment...
+                                  </span>
+                                ) : paymentProofFile ? (
+                                  '✓ Next Step: Finish Your Report'
+                                ) : (
+                                  'Add Proof to Continue'
+                                )}
                               </button>
                             </div>
                           </div>
-                        )}
+                        </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -979,33 +985,148 @@ export const ReportScam: React.FC = () => {
 
           {step === 4 && (
             <div className="space-y-6 animate-fade-in">
-              <h2 className="text-xl font-bold text-slate-900">Final Affirmation & Service Delivery</h2>
-              <p className="text-slate-600">Designate the electronic mail address for the formal delivery of the Forensic Case Dossier.</p>
+              <h2 className="text-xl font-bold text-slate-900">Finish and Send Your Report</h2>
+              <p className="text-slate-600">We'll prepare everything for you to send via Gmail. Just review and click send.</p>
+              
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Designated Counsel/Client Email Address</label>
-                <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} placeholder="counsel@entity.com" className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none" required />
+                <label className="block text-sm font-medium text-slate-700 mb-2">Your Email Address</label>
+                <input 
+                  type="email" 
+                  name="contactEmail" 
+                  value={formData.contactEmail} 
+                  onChange={handleChange} 
+                  placeholder="your.email@gmail.com" 
+                  className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:outline-none" 
+                  required 
+                />
+                <p className="text-sm text-slate-500 mt-1">This is where we'll contact you about your case</p>
               </div>
+              
               <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg border border-slate-100">
-                <input type="checkbox" name="agreedToTerms" checked={formData.agreedToTerms} onChange={(e) => setFormData(prev => ({ ...prev, agreedToTerms: e.target.checked }))} className="mt-1 w-4 h-4 text-primary-600 rounded" required />
-                <label className="text-sm text-slate-600 leading-relaxed">I hereby provide formal authorization for Sentinel Forensic Advocacy to process the information submitted. I acknowledge that the professional service retainer is for the technical preparation of my evidentiary dossier and is non-refundable upon commencement of forensic labor.</label>
+                <input 
+                  type="checkbox" 
+                  name="agreedToTerms" 
+                  checked={formData.agreedToTerms} 
+                  onChange={(e) => setFormData(prev => ({ ...prev, agreedToTerms: e.target.checked }))} 
+                  className="mt-1 w-4 h-4 text-primary-600 rounded" 
+                  required 
+                />
+                <label className="text-sm text-slate-600 leading-relaxed">
+                  I agree to let Sentinel Forensic Advocacy use my information to help with my case. I understand that clicking "Submit Report" will open Gmail with all my information, and I need to send that email to finish.
+                </label>
               </div>
-              <button type="submit" disabled={!formData.agreedToTerms || isSubmitting} className={`w-full bg-slate-900 text-white py-4 rounded-lg font-bold transition-all shadow-md flex justify-center items-center text-lg ${(!formData.agreedToTerms || isSubmitting) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-800 hover:shadow-lg'}`}>
+              
+              <button 
+                type="submit" 
+                disabled={!formData.agreedToTerms || isSubmitting} 
+                className={`w-full bg-slate-900 text-white py-4 rounded-lg font-bold transition-all shadow-md flex justify-center items-center text-lg ${(!formData.agreedToTerms || isSubmitting) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-800 hover:shadow-lg'}`}
+              >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Formalizing Case Dossier...
+                    Getting Gmail Ready...
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <FileCheck className="w-6 h-6" />
-                    Authorize Commencement of Analysis
+                    <Mail className="w-6 h-6" />
+                    Open Gmail to Send Report
                   </span>
                 )}
               </button>
+              
+              <div className="text-center text-sm text-slate-500 mt-4">
+                <p>After clicking submit, Gmail will open with your report.</p>
+                <p>Just click "Send" to finish.</p>
+              </div>
             </div>
           )}
         </form>
       </div>
+
+      {/* Payment Processing Modal */}
+      {showProcessingModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-slide-up">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900">Checking Your Payment</h3>
+                    <p className="text-sm text-slate-500 mt-1">We're looking at your payment now</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={handleCloseProcessingModal}
+                  className="text-slate-400 hover:text-slate-600 transition-colors p-1 hover:bg-slate-100 rounded-lg"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">
+                    1
+                  </div>
+                  <div>
+                    <p className="font-medium text-slate-900">Checking the Transaction</p>
+                    <p className="text-sm text-slate-600">Making sure your payment went through correctly.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">
+                    2
+                  </div>
+                  <div>
+                    <p className="font-medium text-slate-900">Security Check</p>
+                    <p className="text-sm text-slate-600">Following all safety rules and regulations.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">
+                    3
+                  </div>
+                  <div>
+                    <p className="font-medium text-slate-900">Getting Ready to Help</p>
+                    <p className="text-sm text-slate-600">Setting up everything to start working on your case.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 pt-4 border-t border-slate-200">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">What Happens Next</p>
+                      <p>Our team will check your payment in 1-2 days. We'll email you when it's approved so you can finish your report.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <button 
+                onClick={handleCloseProcessingModal}
+                className="w-full mt-6 bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors"
+              >
+                Got It - Close This Window
+              </button>
+              
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <Lock className="w-4 h-4 text-slate-400" />
+                  <span>Your payment information is safe with us.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

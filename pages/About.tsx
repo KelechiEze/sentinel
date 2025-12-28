@@ -33,7 +33,7 @@ export const About: React.FC = () => {
               <div className="flex flex-col items-center text-center p-4 bg-slate-50 rounded-lg">
                 <Mail className="w-8 h-8 text-slate-700 mb-3" />
                 <h3 className="font-semibold text-slate-900">Electronic Correspondence</h3>
-                <p className="text-sm text-slate-500 mt-1">compliance@sentinel-report.org</p>
+                <p className="text-sm text-slate-500 mt-1">sentinelhonestscamreport@gmail.com</p>
               </div>
             </div>
           </div>

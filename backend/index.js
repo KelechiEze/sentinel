@@ -4,13 +4,21 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 5000; // Use a different port than your frontend
+const PORT = process.env.PORT || 5000;
 
-// FIX CORS - Allow localhost:3000
+// FIX CORS - Allow all necessary origins
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://sentinelrecovery.netlify.app'],
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://sentinelrecovery.netlify.app',
+    'https://sentinel-shkp.onrender.com'
+  ],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'User-Agent']
 }));
+
 app.use(express.json());
 
 // ====================
@@ -64,11 +72,9 @@ function createCSV(reportData) {
   try {
     console.log('💾 Creating CSV files...');
     
-    // Read all reports
     const dbContent = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
     const allReports = dbContent.reports;
     
-    // Create CSV content
     const headerRow = CSV_HEADERS.join(',') + '\n';
     const dataRows = allReports.map(report => {
       return CSV_HEADERS.map(header => {
@@ -83,16 +89,13 @@ function createCSV(reportData) {
     
     const csvContent = headerRow + dataRows;
     
-    // 1. Save timestamped file
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const timestampFile = path.join(LOCAL_CSV_DIR, `scam-reports-${timestamp}.csv`);
     fs.writeFileSync(timestampFile, csvContent, 'utf8');
     
-    // 2. Save latest.csv
     const latestFile = path.join(LOCAL_CSV_DIR, 'latest.csv');
     fs.writeFileSync(latestFile, csvContent, 'utf8');
     
-    // 3. Save master file
     const masterFile = path.join(LOCAL_CSV_DIR, 'scam-reports.csv');
     fs.writeFileSync(masterFile, csvContent, 'utf8');
     
@@ -117,6 +120,8 @@ function createCSV(reportData) {
 // ====================
 app.post('/api/submit-report', (req, res) => {
   console.log('📥 Form submitted!');
+  console.log('User-Agent:', req.headers['user-agent']);
+  console.log('Origin:', req.headers['origin']);
   
   try {
     const reportData = req.body;
@@ -148,7 +153,6 @@ app.post('/api/submit-report', (req, res) => {
       originalData: reportData
     };
     
-    // Save to JSON
     const jsonSaved = saveToJSON(completeReport);
     
     if (!jsonSaved) {
@@ -158,7 +162,6 @@ app.post('/api/submit-report', (req, res) => {
       });
     }
     
-    // 🎯 CREATE CSV FILES - THIS IS WHAT YOU WANT!
     const csvResult = createCSV(completeReport);
     
     res.json({
@@ -231,8 +234,9 @@ app.get('/api/csv-files', (req, res) => {
 
 app.get('/', (req, res) => {
   res.json({
-    service: 'Sentinel Local API',
+    service: 'Sentinel API',
     status: 'running',
+    host: req.headers.host,
     csvLocation: LOCAL_CSV_DIR,
     endpoints: [
       'POST /api/submit-report - Submit form & create CSV',
@@ -247,12 +251,11 @@ app.get('/', (req, res) => {
 // ====================
 app.listen(PORT, () => {
   console.log('='.repeat(60));
-  console.log(`🚀 LOCAL SERVER STARTED ON PORT ${PORT}`);
-  console.log(`📁 Data will be saved to: ${LOCAL_DATA_DIR}`);
-  console.log(`📊 CSV files will be created in: ${LOCAL_CSV_DIR}`);
+  console.log(`🚀 SERVER STARTED ON PORT ${PORT}`);
+  console.log(`📁 Data saved to: ${LOCAL_DATA_DIR}`);
+  console.log(`📊 CSV files created in: ${LOCAL_CSV_DIR}`);
   console.log(`🌐 URL: http://localhost:${PORT}`);
   console.log('='.repeat(60));
   console.log('✅ Ready to receive form submissions!');
-  console.log('✅ CSV files will appear in csv-exports/ folder automatically');
   console.log('='.repeat(60));
 });

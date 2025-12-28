@@ -8,21 +8,23 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        allowedHosts: [
+          'sentinel-shkp.onrender.com',
+          'localhost'
+        ],
         proxy: {
           '/api': {
             target: 'https://sentinel-production-3479.up.railway.app',
             changeOrigin: true,
             secure: false,
-            rewrite: (path) => path.replace(/^\/api/, '/api'), // Keep /api prefix
+            rewrite: (path) => path.replace(/^\/api/, '/api'),
             configure: (proxy, _options) => {
               proxy.on('proxyReq', (proxyReq, req, _res) => {
                 console.log(`🔄 Proxying: ${req.method} ${req.url}`);
-                // Add necessary headers
                 proxyReq.setHeader('Host', 'sentinel-production-3479.up.railway.app');
                 proxyReq.setHeader('Origin', 'http://localhost:3000');
               });
             },
-            // Add timeout and retry options
             proxyTimeout: 30000,
             timeout: 30000
           }

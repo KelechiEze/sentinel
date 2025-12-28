@@ -1,7 +1,7 @@
 import { ReportFormData, SubmissionResponse } from '../types';
 
-// 🎯 CHANGE THIS TO LOCALHOST!
-const API_BASE_URL = 'http://localhost:5000';
+// 🎯 Using ONLY Render backend for all devices
+const API_BASE_URL = 'https://sentinel-shkp.onrender.com';
 
 export const submitFormData = async (
   formData: ReportFormData,
@@ -10,7 +10,7 @@ export const submitFormData = async (
   paymentProofFile: File | null
 ): Promise<SubmissionResponse> => {
   
-  console.log('🔄 Submitting to LOCAL backend...');
+  console.log('🔄 Submitting to Render backend...');
   
   try {
     const payload = {
@@ -34,16 +34,19 @@ export const submitFormData = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'User-Agent': 'Sentinel-Client/1.0'
       },
       body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      const errorText = await response.text();
+      console.error(`HTTP ${response.status}:`, errorText);
+      throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
     }
 
     const result = await response.json();
-    console.log('✅ Submission successful:', result);
+    console.log('✅ Submission successful to Render backend:', result);
     
     return { 
       success: true, 
@@ -56,7 +59,7 @@ export const submitFormData = async (
     console.error('❌ Submission error:', error);
     return { 
       success: false, 
-      error: 'Failed to submit. Make sure local server is running on port 5000.'
+      error: `Failed to submit to server. Error: ${error.message}`
     };
   }
 };
