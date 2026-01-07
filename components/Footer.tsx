@@ -59,7 +59,7 @@ export const Footer: React.FC = () => {
         </div>
         
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
-          <p>&copy; {new Date().getFullYear()} Sentinel Reporting Ltd. Registered in UK & EU.</p>
+          <p>&copy; 2023 Sentinel Reporting Ltd. Registered in US, UK & EU.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link to="/privacy" className="hover:text-primary-500 transition-colors cursor-pointer">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-primary-500 transition-colors cursor-pointer">Terms of Service</Link>
